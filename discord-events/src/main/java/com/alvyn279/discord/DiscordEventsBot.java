@@ -35,8 +35,7 @@ public class DiscordEventsBot {
                             .setTimestamp(Instant.now());
                         Constants.CHANNEL_USERS
                             .forEach(user -> embedCreateSpec.addField(user.name, user.role, true));
-                    }
-                ).then())
+                    }).then())
         );
     }
 
