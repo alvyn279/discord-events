@@ -1,8 +1,11 @@
 package com.alvyn279.discord;
 
 import com.alvyn279.discord.domain.CommandReaction;
+import com.alvyn279.discord.provider.RootModule;
 import com.alvyn279.discord.utils.Constants;
 import com.alvyn279.discord.utils.EnvironmentUtils;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -19,6 +22,8 @@ import java.util.Map;
  * DiscordEvents Bot entrypoint for the long-running process.
  */
 public class DiscordEventsBot {
+
+    private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
 
     public static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
@@ -40,7 +45,9 @@ public class DiscordEventsBot {
     }
 
     public static void main(String[] args) {
-        final String discordClientToken = EnvironmentUtils.getDiscordClientTokenFromEnvVars();
+        // TODO: use injector
+        final Injector injector = Guice.createInjector(new RootModule());
+        final String discordClientToken = EnvironmentUtils.getEnvVar(DISCORD_BOT_TOKEN_KEY);
         final GatewayDiscordClient client = DiscordClientBuilder
             .create(discordClientToken)
             .build()
