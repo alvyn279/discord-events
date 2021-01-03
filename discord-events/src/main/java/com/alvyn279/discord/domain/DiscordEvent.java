@@ -16,6 +16,13 @@ import java.util.Map;
 @Builder
 @Data
 public class DiscordEvent {
+    // Key names for DiscordEvent entity in DDB Table
+    private static final String EVENT_ID_KEY = "eventId";
+    private static final String CREATED_BY_KEY = "createdBy";
+    private static final String NAME_KEY = "name";
+    private static final String TIMESTAMP_KEY = "timestamp";
+    private static final String DESCRIPTION_KEY = "description";
+
     /**
      * The unique event ID for the event created with the bot
      */
@@ -41,12 +48,6 @@ public class DiscordEvent {
      */
     String description;
 
-    private static final String EVENT_ID_KEY = "eventId";
-    private static final String CREATED_BY_KEY = "createdBy";
-    private static final String NAME_KEY = "name";
-    private static final String TIMESTAMP_KEY = "timestamp";
-    private static final String DESCRIPTION_KEY = "description";
-
     /**
      * AWS DDB SETTER
      * Creates an AWS DDB-processable item for read/writes with the AWS SDK client
@@ -71,7 +72,7 @@ public class DiscordEvent {
      * @param map Map<String, AttributeValue> map from DDB reads
      * @return A discord event
      */
-    public static DiscordEvent fromMap(Map<String, AttributeValue> map) {
+    public static DiscordEvent fromDDBMap(Map<String, AttributeValue> map) {
         return DiscordEvent.builder()
             .eventId(map.get(EVENT_ID_KEY).s())
             .createdBy(map.get(CREATED_BY_KEY).s())

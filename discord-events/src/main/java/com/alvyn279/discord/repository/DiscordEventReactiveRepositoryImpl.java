@@ -7,19 +7,19 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 
 /**
- * Implementation of {@link DiscordEventRepository} where the repository uses
+ * Implementation of {@link DiscordEventReactiveRepository} where the repository uses
  * an async DDB client for its operations.
  *
  * It implements read/writes in a reactive manner.
  */
-public class DiscordEventRepositoryImpl implements DiscordEventRepository {
+public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveRepository {
 
     private static final String DISCORD_EVENTS_TABLE_NAME = "DiscordEvents";
 
     private final DynamoDbAsyncClient client;
 
     @Inject
-    DiscordEventRepositoryImpl(DynamoDbAsyncClient client) {
+    DiscordEventReactiveRepositoryImpl(DynamoDbAsyncClient client) {
         this.client = client;
     }
 

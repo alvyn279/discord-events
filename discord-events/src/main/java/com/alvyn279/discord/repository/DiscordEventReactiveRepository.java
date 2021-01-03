@@ -4,10 +4,10 @@ import com.alvyn279.discord.domain.DiscordEvent;
 import reactor.core.publisher.Mono;
 
 /**
- * Defines all the logical reads and write for the @link{DiscordEvent}
+ * Declares all the logical reads and write for the @link{DiscordEvent}
  * entity.
  */
-public interface DiscordEventRepository {
+public interface DiscordEventReactiveRepository {
 
     /**
      * Saves a {@link DiscordEvent} to a datastore in a reactive manner
