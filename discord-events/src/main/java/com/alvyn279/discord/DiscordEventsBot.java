@@ -1,6 +1,6 @@
 package com.alvyn279.discord;
 
-import com.alvyn279.discord.domain.Command;
+import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.utils.Constants;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import discord4j.core.DiscordClientBuilder;
@@ -22,7 +22,7 @@ public class DiscordEventsBot {
 
     public static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
-    private static final Map<String, Command> commands = new HashMap<>();
+    private static final Map<String, CommandReaction> commands = new HashMap<>();
 
     static {
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
@@ -34,7 +34,7 @@ public class DiscordEventsBot {
                             .setDescription("tt le monde est sus. J'suis en train d'apprendre reactive programming")
                             .setTimestamp(Instant.now());
                         Constants.CHANNEL_USERS
-                            .forEach(user -> embedCreateSpec.addField(user.name, user.role, true));
+                            .forEach(user -> embedCreateSpec.addField(user.getName(), user.getRole(), true));
                     }).then())
         );
     }
