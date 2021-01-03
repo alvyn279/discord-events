@@ -41,6 +41,9 @@ dependencies {
 
     // Google Guice
     compile group: 'com.google.inject', name: 'guice', version: '4.0'
+
+    // Slf4j-simple
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
 }
 
 test {

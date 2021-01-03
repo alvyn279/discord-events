@@ -2,6 +2,7 @@ package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.google.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
  *
  * It implements read/writes in a reactive manner.
  */
+@Slf4j
 public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveRepository {
 
     private static final String DISCORD_EVENTS_TABLE_NAME = "DiscordEvents";
