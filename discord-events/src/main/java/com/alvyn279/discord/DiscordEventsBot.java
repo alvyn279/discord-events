@@ -101,7 +101,13 @@ public class DiscordEventsBot {
                 .flatMap(messageContent -> Flux.fromIterable(commands.entrySet())
                     .filter(entry -> messageContent.startsWith(String.format(
                         "%1$s%2$s", DISCORD_COMMAND_PREFIX, entry.getKey())))
-                    .flatMap(entry -> entry.getValue().execute(messageCreateEvent))
+                    .flatMap(entry -> entry.getValue()
+                        .execute(messageCreateEvent)
+                        .onErrorResume(throwable -> {
+                            log.error("Error with discord-events", throwable);
+                            return Mono.empty();
+                        })
+                    )
                     .next()))
             .subscribe(); // consumes the flux stream
 

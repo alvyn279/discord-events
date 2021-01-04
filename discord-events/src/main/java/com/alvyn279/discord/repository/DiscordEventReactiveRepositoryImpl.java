@@ -33,7 +33,10 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
             .build();
 
         return Mono.fromFuture(client.putItem(putDiscordEventRequest))
-            .doOnError(throwable -> log.error("Error writing to DDB", throwable))
-            .map(putItemResponse -> discordEvent);
+            .map(putItemResponse -> discordEvent)
+            .onErrorResume(throwable -> {
+                log.error("Error writing to DDB", throwable);
+                return Mono.just(discordEvent);
+            });
     }
 }
