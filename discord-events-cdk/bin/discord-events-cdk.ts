@@ -11,7 +11,7 @@ const env: cdk.Environment = {
   region: 'us-east-1',
 };
 
-new DiscordEventsStack(app, 'DiscordEventsCdkStack', {
+new DiscordEventsStack(app, 'DiscordEventsStack', {
   env,
   partitionKeyName: PARTITION_KEY,
 });
