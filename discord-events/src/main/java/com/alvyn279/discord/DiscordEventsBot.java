@@ -14,6 +14,7 @@ import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,6 +37,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
+    private static final String MESSAGE_NO_ONE = "No one";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
 
@@ -62,27 +64,35 @@ public class DiscordEventsBot {
             Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
                     // COMMAND FORMAT: !create-event “Event title” 2021/02/02 19:00 “Event description”
-
                     // Parse tokens and create discord-events object
                     List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
+                    Message msg = event.getMessage();
                     DiscordEvent discordEvent = DiscordEvent.builder()
-                        // We give the database event id that of the
-                        // incoming Discord message
-                        .eventId(event.getMessage().getId().toString())
+                        // We give the database event id that of the incoming Discord message
+                        .eventId(msg.getId().toString())
                         .name(tokens.get(1))
-                        .timestamp(DateUtils.fromDateAndTime(
-                            tokens.get(2),
-                            tokens.get(3)
-                        ))
+                        .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
                         .description(tokens.get(4))
+                        .createdBy(msg.getAuthor().isPresent() ?
+                            msg.getAuthor().get().getUsername() : MESSAGE_NO_ONE)
                         .build();
 
-                    // TODO: write discord event to DDB
-                    log.info(discordEvent.getTimestamp().toString());
-
-                    // TODO: announce newly created event
-
-                    return Mono.empty();
+                    // Write discord event to DDB
+                    return discordEventRepo.saveDiscordEvent(discordEvent)
+                        // Announce newly created event
+                        .flatMap(discordEventRes -> msg.getChannel()
+                            .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec ->
+                                embedCreateSpec
+                                    .setTitle(discordEventRes.getName())
+                                    .setDescription(discordEventRes.getDescription())
+                                    .setTimestamp(discordEventRes.getTimestamp())
+                                    .addField(
+                                        DiscordEvent.CREATED_BY_LABEL,
+                                        discordEventRes.getCreatedBy(),
+                                        true
+                                    )
+                            ))
+                        );
                 })
                 .then());
     }

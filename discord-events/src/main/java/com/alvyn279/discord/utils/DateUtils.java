@@ -11,6 +11,8 @@ import java.util.Locale;
  */
 public class DateUtils {
 
+    public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("America/Toronto");
+
     /**
      * Creates an {@link Instant} object from a date string and time string
      * @param dateString date string of format MM/DD/YYYY
@@ -21,9 +23,8 @@ public class DateUtils {
         return LocalDateTime
             .parse(
                 String.format("%1$s, %2$s", dateString, timeString),
-                DateTimeFormatter.ofPattern("M/d/uuuu, H:mm", Locale.CANADA)
-            )
-            .atZone(ZoneId.of("America/Toronto"))
+                DateTimeFormatter.ofPattern("M/d/uuuu, H:mm", Locale.CANADA))
+            .atZone(DEFAULT_TIMEZONE)
             .toInstant();
     }
 }

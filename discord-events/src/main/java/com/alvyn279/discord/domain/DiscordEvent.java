@@ -23,6 +23,12 @@ public class DiscordEvent {
     private static final String TIMESTAMP_KEY = "timestamp";
     private static final String DESCRIPTION_KEY = "description";
 
+    public static final String EVENT_ID_LABEL = "Event ID";
+    public static final String CREATED_BY_LABEL = "Created by";
+    public static final String NAME_LABEL = "Name";
+    public static final String TIMESTAMP_LABEL = "Timestamp";
+    public static final String DESCRIPTION_LABEL = "Description";
+
     /**
      * The unique event ID for the event created with the bot
      */
