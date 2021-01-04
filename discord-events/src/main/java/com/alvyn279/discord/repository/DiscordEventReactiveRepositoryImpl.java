@@ -31,7 +31,9 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
             .tableName(DISCORD_EVENTS_TABLE_NAME)
             .item(DiscordEvent.toDDBItem(discordEvent))
             .build();
-        // TODO: Finish reactive integration
-        return null;
+
+        return Mono.fromFuture(client.putItem(putDiscordEventRequest))
+            .doOnError(throwable -> log.error("Error writing to DDB", throwable))
+            .map(putItemResponse -> discordEvent);
     }
 }
