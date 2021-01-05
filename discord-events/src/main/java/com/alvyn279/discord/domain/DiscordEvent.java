@@ -26,7 +26,7 @@ public class DiscordEvent {
     public static final String EVENT_ID_LABEL = "Event ID";
     public static final String CREATED_BY_LABEL = "Created by";
     public static final String NAME_LABEL = "Name";
-    public static final String TIMESTAMP_LABEL = "Timestamp";
+    public static final String TIMESTAMP_LABEL = "Time";
     public static final String DESCRIPTION_LABEL = "Description";
 
     /**

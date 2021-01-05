@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * A Discord Bot implementation that schedules events.
  * <p>
@@ -69,7 +68,7 @@ public class DiscordEventsBot {
                     Message msg = event.getMessage();
                     DiscordEvent discordEvent = DiscordEvent.builder()
                         // We give the database event id that of the incoming Discord message
-                        .eventId(msg.getId().toString())
+                        .eventId(msg.getId().asString())
                         .name(tokens.get(1))
                         .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
                         .description(tokens.get(4))
@@ -85,12 +84,15 @@ public class DiscordEventsBot {
                                 embedCreateSpec
                                     .setTitle(discordEventRes.getName())
                                     .setDescription(discordEventRes.getDescription())
-                                    .setTimestamp(discordEventRes.getTimestamp())
                                     .addField(
                                         DiscordEvent.CREATED_BY_LABEL,
                                         discordEventRes.getCreatedBy(),
-                                        true
-                                    )
+                                        true)
+                                    .addField(
+                                        DiscordEvent.TIMESTAMP_LABEL,
+                                        DateUtils.prettyPrintInstantInLocalTimezone(discordEventRes.getTimestamp()),
+                                        true)
+                                    .setTimestamp(Instant.now())
                             ))
                         );
                 })
