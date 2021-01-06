@@ -5,6 +5,8 @@ Discord bot to schedule events
 ## Running the bot
 
 1. Set env vars:
-    - `DISCORD_BOT_TOKEN` 
     - `AWS_DEFAULT_REGION`
-2. Run `./gradlew runWithJavaExec`
+    - `DISCORD_BOT_TOKEN`
+    - `AWS_ACCESS_KEY_ID`
+    - `AWS_SECRET_ACCESS_KEY`
+2. Build `docker-compose up`
