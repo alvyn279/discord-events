@@ -40,7 +40,7 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb'
 
     // Google Guice
-    compile group: 'com.google.inject', name: 'guice', version: '4.0'
+    compile group: 'com.google.inject', name: 'guice', version: '5.0.0-BETA-1'
 
     // Slf4j-simple
     implementation 'org.slf4j:slf4j-simple:1.7.30'
