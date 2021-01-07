@@ -5,6 +5,7 @@ import java.util.Map;
 public class EnvironmentUtils {
     /**
      * Tries to retrieve the an env var in execution environment variables.
+     * Ideally, this method is called at the earliest opportunity in execution.
      *
      * @return String Environment variable value
      * @param envVarKey Environment variable name

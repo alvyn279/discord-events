@@ -11,13 +11,15 @@ const AWS_DEFAULT_REGION = getEnvVar('AWS_DEFAULT_REGION');
 const DISCORD_BOT_TOKEN = getEnvVar('DISCORD_BOT_TOKEN');
 const AWS_ACCESS_KEY_ID = getEnvVar('AWS_ACCESS_KEY_ID');
 const AWS_SECRET_ACCESS_KEY = getEnvVar('AWS_SECRET_ACCESS_KEY');
+const DISCORD_EVENTS_TABLE_NAME = getEnvVar('DISCORD_EVENTS_TABLE_NAME');
 
-const ENV_VARS = {
+const ENV_VARS: DiscordEventsEnvVars = {
   AWS_DEFAULT_REGION,
   DISCORD_BOT_TOKEN,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
-} as DiscordEventsEnvVars;
+  DISCORD_EVENTS_TABLE_NAME
+};
 
 const app = new cdk.App();
 
@@ -31,5 +33,6 @@ new DiscordEventsStack(app, 'DiscordEventsStack', {
   environmentVariables: ENV_VARS,
   clusterName: CLUSTER_NAME,
   serviceName: SERVICE_NAME,
-  partitionKeyName: PARTITION_KEY,
+  ddbPartitionKeyName: PARTITION_KEY,
+  ddbTableName: DISCORD_EVENTS_TABLE_NAME,
 });

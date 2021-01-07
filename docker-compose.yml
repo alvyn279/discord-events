@@ -2,9 +2,10 @@ version: "3.9"
 services:
   discord-events-bot:
     environment:
-      - AWS_DEFAULT_REGION
-      - DISCORD_BOT_TOKEN
       - AWS_ACCESS_KEY_ID
+      - AWS_DEFAULT_REGION
       - AWS_SECRET_ACCESS_KEY
+      - DISCORD_BOT_TOKEN
+      - DISCORD_EVENTS_TABLE_NAME
     build:
       context: ./discord-events

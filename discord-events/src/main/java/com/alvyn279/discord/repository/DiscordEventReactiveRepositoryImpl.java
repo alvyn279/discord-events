@@ -1,6 +1,7 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
+import com.alvyn279.discord.utils.EnvironmentUtils;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -17,8 +18,8 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 @Slf4j
 public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveRepository {
 
-    // TODO: get discord events table name from env vars
-    private static final String DISCORD_EVENTS_TABLE_NAME = "DiscordEventsStack-DiscordEventsTable9A201A75-SX8T2BAK2N8Y";
+    private static final String DISCORD_EVENTS_TABLE_NAME_KEY = "DISCORD_EVENTS_TABLE_NAME";
+    private static final String DISCORD_EVENTS_TABLE_NAME = EnvironmentUtils.getEnvVar(DISCORD_EVENTS_TABLE_NAME_KEY);
 
     private final DynamoDbAsyncClient client;
 

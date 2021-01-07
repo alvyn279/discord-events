@@ -17,10 +17,12 @@ test('Discord Events Stack', () => {
       DISCORD_BOT_TOKEN: '',
       AWS_ACCESS_KEY_ID: '',
       AWS_SECRET_ACCESS_KEY: '',
+      DISCORD_EVENTS_TABLE_NAME: '',
     },
-    partitionKeyName: 'randomPartitionKeyName',
+    ddbPartitionKeyName: 'randomPartitionKeyName',
     clusterName: 'randomClusterName',
     serviceName: 'randomServiceName',
+    ddbTableName: 'randomTableName',
   });
 
   // THEN
@@ -41,5 +43,6 @@ test('Discord Events Stack', () => {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5
     },
+    TableName: 'randomTableName',
   }));
 });

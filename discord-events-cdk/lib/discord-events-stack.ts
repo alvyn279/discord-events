@@ -10,7 +10,8 @@ import * as ecsPatterns from '@aws-cdk/aws-ecs-patterns';
  * Props for {@link DiscordEventsStack}
  */
 export interface DiscordEventsStackProps extends cdk.StackProps {
-  partitionKeyName: string,
+  ddbPartitionKeyName: string,
+  ddbTableName: string,
   clusterName: string,
   serviceName: string,
   environmentVariables?: DiscordEventsEnvVars
@@ -25,6 +26,7 @@ export interface DiscordEventsEnvVars {
   DISCORD_BOT_TOKEN: string,
   AWS_ACCESS_KEY_ID: string,
   AWS_SECRET_ACCESS_KEY: string,
+  DISCORD_EVENTS_TABLE_NAME: string,
 }
 
 /**
@@ -37,8 +39,9 @@ export class DiscordEventsStack extends cdk.Stack {
 
     // Create events table
     new ddb.Table(this, 'DiscordEventsTable', {
+      tableName: props.ddbTableName,
       partitionKey: {
-        name: props.partitionKeyName,
+        name: props.ddbPartitionKeyName,
         type: ddb.AttributeType.STRING,
       },
       removalPolicy: RemovalPolicy.DESTROY,
