@@ -12,7 +12,15 @@ test('Discord Events Stack', () => {
       account: 'random',
       region: 'us-east-1',
     },
+    environmentVariables: {
+      AWS_DEFAULT_REGION: 'us-east-1',
+      DISCORD_BOT_TOKEN: '',
+      AWS_ACCESS_KEY_ID: '',
+      AWS_SECRET_ACCESS_KEY: '',
+    },
     partitionKeyName: 'randomPartitionKeyName',
+    clusterName: 'randomClusterName',
+    serviceName: 'randomServiceName',
   });
 
   // THEN

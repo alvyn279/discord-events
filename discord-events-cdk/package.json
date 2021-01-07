@@ -5,25 +5,29 @@
     "discord-events-cdk": "bin/discord-events-cdk.js"
   },
   "scripts": {
-    "build": "tsc && cdk synth",
-    "watch": "tsc -w",
-    "test": "jest",
+    "setupEnv": "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY",
+    "build": "yarn run setupEnv && tsc && cdk synth",
+    "watch": "yarn run setupEnv && tsc -w",
+    "test": "yarn run setupEnv && jest",
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^1.82.0",
+    "@aws-cdk/assert": "^1.83.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "^1.82.0",
+    "aws-cdk": "^1.83.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-dynamodb": "^1.82.0",
-    "@aws-cdk/aws-ec2": "^1.82.0",
-    "@aws-cdk/core": "^1.82.0",
+    "@aws-cdk/aws-dynamodb": "^1.83.0",
+    "@aws-cdk/aws-ec2": "^1.83.0",
+    "@aws-cdk/aws-ecr-assets": "^1.83.0",
+    "@aws-cdk/aws-ecs": "^1.83.0",
+    "@aws-cdk/aws-ecs-patterns": "^1.83.0",
+    "@aws-cdk/core": "^1.83.0",
     "source-map-support": "^0.5.16"
   }
 }
