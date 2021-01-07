@@ -50,7 +50,7 @@ export class DiscordEventsStack extends cdk.Stack {
       directory: '../discord-events', // relative to package.json
       buildArgs: {
         ...props.environmentVariables,
-      }
+      },
     });
 
     const discordEventsCluster: ecs.Cluster = new ecs.Cluster(this, 'DiscordEventsCluster', {
@@ -68,8 +68,8 @@ export class DiscordEventsStack extends cdk.Stack {
       new ecsPatterns.ApplicationLoadBalancedEc2Service(
       this, 'DiscordEventsService', {
         cluster: discordEventsCluster,
-        memoryLimitMiB: 1024,
-        cpu: 256,
+        memoryLimitMiB: 512,
+        cpu: 5,
         desiredCount: 1,
         serviceName: props.serviceName,
         publicLoadBalancer: true,
