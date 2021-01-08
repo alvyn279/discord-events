@@ -56,7 +56,7 @@ public class DiscordEventsBot {
                             .setTimestamp(Instant.now());
                         Constants.CHANNEL_USERS
                             .forEach(user -> embedCreateSpec.addField(user.getName(), user.getRole(), true));
-                    }).then())
+                    }))
                 .then()
         );
 
@@ -95,8 +95,7 @@ public class DiscordEventsBot {
                                         true)
                                     .setTimestamp(Instant.now())
                             ))
-                        )
-                        .then();
+                        );
                 })
                 .then());
     }
@@ -117,11 +116,11 @@ public class DiscordEventsBot {
                         "%1$s%2$s", DISCORD_COMMAND_PREFIX, entry.getKey())))
                     .flatMap(entry -> entry.getValue()
                         .execute(messageCreateEvent)
+                        .retry(1)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
                             return Mono.empty();
-                        })
-                    )
+                        }))
                     .next()))
             .subscribe(); // consumes the flux stream
 

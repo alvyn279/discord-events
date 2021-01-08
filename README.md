@@ -9,4 +9,5 @@ Discord bot to schedule events
     - `DISCORD_BOT_TOKEN`
     - `AWS_ACCESS_KEY_ID`
     - `AWS_SECRET_ACCESS_KEY`
+    - `DISCORD_EVENTS_TABLE_NAME`
 2. Build `docker-compose up`
