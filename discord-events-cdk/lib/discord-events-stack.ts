@@ -4,7 +4,6 @@ import * as ddb from '@aws-cdk/aws-dynamodb';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecrAssets from '@aws-cdk/aws-ecr-assets';
 import * as ecs from '@aws-cdk/aws-ecs';
-import * as ecsPatterns from '@aws-cdk/aws-ecs-patterns';
 
 /**
  * Props for {@link DiscordEventsStack}
@@ -47,7 +46,7 @@ export class DiscordEventsStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    // Create service
+    // Create ec2 task definition
     const discordEventsImage: ecrAssets.DockerImageAsset = new ecrAssets.DockerImageAsset(
       this, 'DiscordEventsImage', {
       directory: '../discord-events', // relative to package.json
@@ -55,6 +54,17 @@ export class DiscordEventsStack extends cdk.Stack {
         ...props.environmentVariables,
       },
     });
+  
+    const taskDefinition: ecs.TaskDefinition = new ecs.Ec2TaskDefinition(this, 'Ec2DiscordEventsTaskDefinition');
+    
+    taskDefinition.addContainer('DiscordEventsBotContainer', {
+      image: ecs.ContainerImage.fromDockerImageAsset(discordEventsImage),
+      memoryLimitMiB: 512,
+      cpu: 5,
+      environment: {
+        ...props.environmentVariables,
+      },
+    })
 
     const discordEventsCluster: ecs.Cluster = new ecs.Cluster(this, 'DiscordEventsCluster', {
       clusterName: props.clusterName,
@@ -67,25 +77,11 @@ export class DiscordEventsStack extends cdk.Stack {
       minCapacity: 0,
     });
 
-    const discordEventsService: ecsPatterns.ApplicationLoadBalancedEc2Service =
-      new ecsPatterns.ApplicationLoadBalancedEc2Service(
-      this, 'DiscordEventsService', {
-        cluster: discordEventsCluster,
-        memoryLimitMiB: 512,
-        cpu: 5,
-        desiredCount: 1,
-        serviceName: props.serviceName,
-        publicLoadBalancer: true,
-        minHealthyPercent: 0,
-        maxHealthyPercent: 100,
-        taskImageOptions: {
-          image: ecs.ContainerImage.fromDockerImageAsset(discordEventsImage),
-          environment: {
-            ...props.environmentVariables,
-          },
-        },
+    const discordEventsService: ecs.Ec2Service = new ecs.Ec2Service(this, 'DiscordEventsService', {
+      cluster: discordEventsCluster,
+      taskDefinition,
     });
-    
+
     discordEventsImage.repository.grantPull(discordEventsService.taskDefinition.taskRole);
   }
 }
