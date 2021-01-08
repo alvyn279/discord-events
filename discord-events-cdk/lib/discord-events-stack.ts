@@ -64,7 +64,10 @@ export class DiscordEventsStack extends cdk.Stack {
       environment: {
         ...props.environmentVariables,
       },
-    })
+      logging: ecs.LogDrivers.awsLogs({
+        streamPrefix: 'DiscordEventsExecution',
+      }),
+    });
 
     const discordEventsCluster: ecs.Cluster = new ecs.Cluster(this, 'DiscordEventsCluster', {
       clusterName: props.clusterName,
@@ -80,6 +83,7 @@ export class DiscordEventsStack extends cdk.Stack {
     const discordEventsService: ecs.Ec2Service = new ecs.Ec2Service(this, 'DiscordEventsService', {
       cluster: discordEventsCluster,
       taskDefinition,
+      daemon: true,
     });
 
     discordEventsImage.repository.grantPull(discordEventsService.taskDefinition.taskRole);
