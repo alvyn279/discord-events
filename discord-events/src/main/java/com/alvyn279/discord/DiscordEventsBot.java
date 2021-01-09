@@ -116,13 +116,15 @@ public class DiscordEventsBot {
                         "%1$s%2$s", DISCORD_COMMAND_PREFIX, entry.getKey())))
                     .flatMap(entry -> entry.getValue()
                         .execute(messageCreateEvent)
+                        // we retry in the case of a cold request where
+                        // reactor.netty.http.client.PrematureCloseException is thrown
                         .retry(1)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
                             return Mono.empty();
                         }))
                     .next()))
-            .subscribe(); // consumes the flux stream
+            .subscribe();
 
         client.onDisconnect().block();
     }
