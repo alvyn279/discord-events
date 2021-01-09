@@ -16,8 +16,10 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -116,8 +118,10 @@ public class DiscordEventsBot {
                         "%1$s%2$s", DISCORD_COMMAND_PREFIX, entry.getKey())))
                     .flatMap(entry -> entry.getValue()
                         .execute(messageCreateEvent)
-                        // we retry in the case of a cold request where
-                        // reactor.netty.http.client.PrematureCloseException is thrown
+                        // We retry in the case of a cold request where
+                        // reactor.netty.http.client.PrematureCloseException is thrown.
+                        // This should still be fine for any DDB operations
+                        // if consistency checks are made at write-time.
                         .retry(1)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
