@@ -16,10 +16,8 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -38,7 +36,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
-    private static final String MESSAGE_NO_ONE = "No one";
+    private static final String BOT = "BOT";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
 
@@ -62,21 +60,21 @@ public class DiscordEventsBot {
                 .then()
         );
 
-        commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event ->
-            Mono.just(event.getMessage().getContent())
+        commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event -> event.getGuild()
+            .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
                     // COMMAND FORMAT: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
                     List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
                     Message msg = event.getMessage();
                     DiscordEvent discordEvent = DiscordEvent.builder()
-                        // We give the database event id that of the incoming Discord message
-                        .eventId(msg.getId().asString())
-                        .name(tokens.get(1))
+                        .guildId(guild.getId().asString())
                         .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
-                        .description(tokens.get(4))
                         .createdBy(msg.getAuthor().isPresent() ?
-                            msg.getAuthor().get().getUsername() : MESSAGE_NO_ONE)
+                            msg.getAuthor().get().getId().asString() : BOT)
+                        .messageId(msg.getId().asString())
+                        .name(tokens.get(1))
+                        .description(tokens.get(4))
                         .build();
 
                     // Write discord event to DDB
@@ -89,17 +87,18 @@ public class DiscordEventsBot {
                                     .setDescription(discordEventRes.getDescription())
                                     .addField(
                                         DiscordEvent.CREATED_BY_LABEL,
-                                        discordEventRes.getCreatedBy(),
+                                        msg.getAuthor().get().getUsername(),
                                         true)
                                     .addField(
-                                        DiscordEvent.TIMESTAMP_LABEL,
+                                        DiscordEvent.DATETIME_LABEL,
                                         DateUtils.prettyPrintInstantInLocalTimezone(discordEventRes.getTimestamp()),
                                         true)
                                     .setTimestamp(Instant.now())
                             ))
                         );
                 })
-                .then());
+                .then())
+        );
     }
 
     public static void main(String[] args) {

@@ -10,6 +10,7 @@ import * as ecs from '@aws-cdk/aws-ecs';
  */
 export interface DiscordEventsStackProps extends cdk.StackProps {
   ddbPartitionKeyName: string,
+  ddbSortKeyName: string,
   ddbTableName: string,
   clusterName: string,
   serviceName: string,
@@ -41,6 +42,10 @@ export class DiscordEventsStack extends cdk.Stack {
       tableName: props.ddbTableName,
       partitionKey: {
         name: props.ddbPartitionKeyName,
+        type: ddb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: props.ddbSortKeyName,
         type: ddb.AttributeType.STRING,
       },
       removalPolicy: RemovalPolicy.DESTROY,

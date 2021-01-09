@@ -2,7 +2,7 @@ import { expect as expectCDK, haveResourceLike } from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
 import * as DiscordEventsCdk from '../lib/discord-events-stack';
 
-test('Discord Events Stack', () => {
+test('Discord Events Stack has DDB table', () => {
   // GIVEN
   const app = new cdk.App();
 
@@ -20,6 +20,7 @@ test('Discord Events Stack', () => {
       DISCORD_EVENTS_TABLE_NAME: '',
     },
     ddbPartitionKeyName: 'randomPartitionKeyName',
+    ddbSortKeyName: 'randomSortKeyName',
     clusterName: 'randomClusterName',
     serviceName: 'randomServiceName',
     ddbTableName: 'randomTableName',
@@ -31,6 +32,9 @@ test('Discord Events Stack', () => {
       {
         AttributeName: 'randomPartitionKeyName',
         KeyType: 'HASH',
+      }, {
+        AttributeName: 'randomSortKeyName',
+        KeyType: 'RANGE',
       },
     ],
     AttributeDefinitions: [

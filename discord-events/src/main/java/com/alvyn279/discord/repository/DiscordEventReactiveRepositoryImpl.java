@@ -39,7 +39,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
             .flatMap(putItemResponse -> {
                 SdkHttpResponse httpResponse = putItemResponse.sdkHttpResponse();
                 log.info(String.format("Wrote to DDB event %s: %s %s",
-                    discordEvent.getEventId(),
+                    discordEvent.getMessageId(),
                     httpResponse.statusCode(),
                     httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : ""));
                 return Mono.just(discordEvent);

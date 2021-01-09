@@ -3,7 +3,8 @@ import { DiscordEventsEnvVars, DiscordEventsStack } from '../lib/discord-events-
 import { getEnvVar } from '../lib/utils';
 
 const AWS_ACCOUNT = '459641237997';
-const PARTITION_KEY = 'eventId';
+const DDB_PARTITION_KEY = 'guildId';
+const DDB_SORT_KEY = 'datetimeCreatedBy';
 const CLUSTER_NAME = 'discord-events-cluster';
 const SERVICE_NAME = 'discord-events-service';
 
@@ -33,6 +34,7 @@ new DiscordEventsStack(app, 'DiscordEventsStack', {
   environmentVariables: ENV_VARS,
   clusterName: CLUSTER_NAME,
   serviceName: SERVICE_NAME,
-  ddbPartitionKeyName: PARTITION_KEY,
+  ddbPartitionKeyName: DDB_PARTITION_KEY,
+  ddbSortKeyName: DDB_SORT_KEY,
   ddbTableName: DISCORD_EVENTS_TABLE_NAME,
 });

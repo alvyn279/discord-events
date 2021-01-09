@@ -1,7 +1,9 @@
 package com.alvyn279.discord.domain;
 
+import discord4j.common.util.Snowflake;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.utils.DateUtils;
 import software.amazon.awssdk.utils.ImmutableMap;
@@ -12,47 +14,101 @@ import java.util.Map;
 /**
  * Class that represents a Discord Event that the users create while
  * interacting with the bot.
+ * <p>
+ * DynamoDB:
+ * PK: `{guildID}`
+ * SK: `{str(timestamp)#{createdBy}}`
  */
 @Builder
 @Data
 public class DiscordEvent {
-    // Key names for DiscordEvent entity in DDB Table
-    private static final String EVENT_ID_KEY = "eventId";
+    // Key names for DiscordEvent entity in DDB Table (attrs)
+    private static final String PARTITION_KEY = "guildId";
+    private static final String SORT_KEY = "datetimeCreatedBy";
+    private static final String MESSAGE_ID_KEY = "messageId";
     private static final String CREATED_BY_KEY = "createdBy";
     private static final String NAME_KEY = "name";
-    private static final String TIMESTAMP_KEY = "timestamp";
     private static final String DESCRIPTION_KEY = "description";
 
-    public static final String EVENT_ID_LABEL = "Event ID";
+    public static final String MESSAGE_ID_LABEL = "Message ID";
     public static final String CREATED_BY_LABEL = "Created by";
-    public static final String NAME_LABEL = "Name";
-    public static final String TIMESTAMP_LABEL = "Time";
-    public static final String DESCRIPTION_LABEL = "Description";
+    public static final String DATETIME_LABEL = "Time";
 
     /**
-     * The unique event ID for the event created with the bot
+     * The discord guild/server's {@link Snowflake} id
      */
-    String eventId;
+    @NonNull
+    String guildId;
 
     /**
-     * The user ID for Discord user that created the event
+     * The Instant object at which the event will start.
+     * In DDB, it is stored as a string with ISO-8601 representation.
      */
+    @NonNull
+    Instant timestamp;
+
+    /**
+     * The {@link Snowflake} id of the user that created the event
+     */
+    @NonNull
     String createdBy;
+
+    /**
+     * The event message's {@link Snowflake} id
+     */
+    @NonNull
+    String messageId;
 
     /**
      * The name/title of the event
      */
+    @NonNull
     String name;
 
     /**
-     * The epoch timestamp at which the event will start
-     */
-    Instant timestamp;
-
-    /**
-     * (Optional) The description for the event
+     * The description for the event
      */
     String description;
+
+    @Builder
+    @Data
+    private static class DatetimeCreatedBy {
+        private static final String DDB_COMPOSITE_KEY_SEPARATOR = "#";
+
+        @NonNull
+        Instant datetime;
+
+        @NonNull
+        String createdBy;
+
+        /**
+         * Builds the datetime#createdBy sort key value to uniquely identify this
+         * event within a guild.
+         *
+         * @return String `{datetime}#{createdBy}`
+         */
+        protected String asString() {
+            return String.format("%1$s%2$s%3$s",
+                datetime.toString(),
+                DDB_COMPOSITE_KEY_SEPARATOR,
+                createdBy
+            );
+        }
+
+        /**
+         * Builds a {@link DatetimeCreatedBy} based on the string value obtained
+         * from the table.
+         *
+         * @return DatetimeCreatedBy object
+         */
+        protected static DatetimeCreatedBy from(String datetimeCreatedByString) {
+            String[] composite = datetimeCreatedByString.split(DDB_COMPOSITE_KEY_SEPARATOR);
+            return DatetimeCreatedBy.builder()
+                .datetime(DateUtils.parseIso8601Date(composite[0]))
+                .createdBy(composite[1])
+                .build();
+        }
+    }
 
     /**
      * AWS DDB SETTER
@@ -62,13 +118,20 @@ public class DiscordEvent {
      * @return Item in ddb domain
      */
     public static Map<String, AttributeValue> toDDBItem(DiscordEvent discordEvent) {
-        return ImmutableMap.of(
-            EVENT_ID_KEY, AttributeValue.builder().s(discordEvent.eventId).build(),
-            CREATED_BY_KEY, AttributeValue.builder().s(discordEvent.createdBy).build(),
-            NAME_KEY, AttributeValue.builder().s(discordEvent.name).build(),
-            TIMESTAMP_KEY, AttributeValue.builder().s(discordEvent.timestamp.toString()).build(),
-            DESCRIPTION_KEY, AttributeValue.builder().s(discordEvent.description).build()
-        );
+        return ImmutableMap.<String, AttributeValue>builder()
+            .put(PARTITION_KEY, AttributeValue.builder().s(discordEvent.guildId).build())
+            .put(SORT_KEY, AttributeValue.builder().s(
+                DatetimeCreatedBy.builder()
+                    .datetime(discordEvent.timestamp)
+                    .createdBy(discordEvent.createdBy)
+                    .build()
+                    .asString())
+                .build())
+            .put(MESSAGE_ID_KEY, AttributeValue.builder().s(discordEvent.messageId).build())
+            .put(CREATED_BY_KEY, AttributeValue.builder().s(discordEvent.createdBy).build())
+            .put(DESCRIPTION_KEY, AttributeValue.builder().s(discordEvent.description).build())
+            .put(NAME_KEY, AttributeValue.builder().s(discordEvent.name).build())
+            .build();
     }
 
     /**
@@ -79,13 +142,14 @@ public class DiscordEvent {
      * @return A discord event
      */
     public static DiscordEvent fromDDBMap(Map<String, AttributeValue> map) {
+        DatetimeCreatedBy datetimeCreatedBy = DatetimeCreatedBy.from(map.get(SORT_KEY).s());
         return DiscordEvent.builder()
-            .eventId(map.get(EVENT_ID_KEY).s())
+            .guildId(map.get(PARTITION_KEY).s())
+            .timestamp(datetimeCreatedBy.datetime)
+            .createdBy(datetimeCreatedBy.createdBy)
+            .messageId(map.get(MESSAGE_ID_KEY).s())
             .createdBy(map.get(CREATED_BY_KEY).s())
             .name(map.get(NAME_KEY).s())
-            .timestamp(DateUtils.parseIso8601Date(
-                map.get(TIMESTAMP_KEY).s()
-            ))
             .description(map.get(DESCRIPTION_KEY).s())
             .build();
     }
