@@ -1,5 +1,4 @@
 import * as cdk from '@aws-cdk/core';
-import { RemovalPolicy } from '@aws-cdk/core';
 import * as ddb from '@aws-cdk/aws-dynamodb';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecrAssets from '@aws-cdk/aws-ecr-assets';
@@ -49,39 +48,33 @@ export class DiscordEventsStack extends cdk.Stack {
         name: props.ddbSortKeyName,
         type: ddb.AttributeType.STRING,
       },
-      removalPolicy: RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     /* Create ECS service */
 
-    // Routing for VPC Endpoint to DDB
-    const isolatedSubnetConfig: ec2.SubnetConfiguration = {
-      cidrMask: 26,
-      name: 'IsolatedSubnet',
-      subnetType: ec2.SubnetType.ISOLATED,
-    };
-
-    // Routing for Internet Gateway for Discord API interaction
+    // Adds routing to Internet Gateway for Discord API interaction
     const publicSubnetConfig: ec2.SubnetConfiguration = {
-      cidrMask: 26,
       name: 'PublicSubnet',
       subnetType: ec2.SubnetType.PUBLIC,
     };
 
     const discordEventsVpc: ec2.Vpc = new ec2.Vpc(this, 'DiscordEventsVpc', {
       maxAzs: 2,
-      subnetConfiguration: [publicSubnetConfig, isolatedSubnetConfig],
+      subnetConfiguration: [publicSubnetConfig],
       natGateways: 0,
     });
 
     // Create VPC endpoint to hide DDB interactions from Internet
+    // Adds routing to VPC Endpoint
     discordEventsVpc.addGatewayEndpoint('DdbVpcEndpoint', {
       service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
-      subnets: [{
-        subnetType: ec2.SubnetType.ISOLATED,
-      },],
     });
-    
+
+    discordEventsVpc.addFlowLog('FlowLog', {
+      trafficType: ec2.FlowLogTrafficType.ALL,
+    });
+
     // Create docker container definition from Dockerfile in discord-events
     const discordEventsImage: ecrAssets.DockerImageAsset = new ecrAssets.DockerImageAsset(
       this, 'DiscordEventsImage', {
@@ -114,8 +107,11 @@ export class DiscordEventsStack extends cdk.Stack {
       instanceType: new ec2.InstanceType('t2.micro'),
       machineImageType: ecs.MachineImageType.BOTTLEROCKET,
       desiredCapacity: 1,
-      maxCapacity: 1,
-      minCapacity: 0,
+      associatePublicIpAddress: true,
+      vpcSubnets: {
+        onePerAz: true,
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
     });
 
     const discordEventsService: ecs.Ec2Service = new ecs.Ec2Service(this, 'DiscordEventsService', {
