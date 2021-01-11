@@ -37,7 +37,8 @@ export class DiscordEventsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: DiscordEventsStackProps) {
     super(scope, id, props);
 
-    // Create events table
+    /* Create events DynamoDB table */
+
     new ddb.Table(this, 'DiscordEventsTable', {
       tableName: props.ddbTableName,
       partitionKey: {
@@ -51,7 +52,37 @@ export class DiscordEventsStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    // Create ec2 task definition
+    /* Create ECS service */
+
+    // Routing for VPC Endpoint to DDB
+    const isolatedSubnetConfig: ec2.SubnetConfiguration = {
+      cidrMask: 26,
+      name: 'IsolatedSubnet',
+      subnetType: ec2.SubnetType.ISOLATED,
+    };
+
+    // Routing for Internet Gateway for Discord API interaction
+    const publicSubnetConfig: ec2.SubnetConfiguration = {
+      cidrMask: 26,
+      name: 'PublicSubnet',
+      subnetType: ec2.SubnetType.PUBLIC,
+    };
+
+    const discordEventsVpc: ec2.Vpc = new ec2.Vpc(this, 'DiscordEventsVpc', {
+      maxAzs: 2,
+      subnetConfiguration: [publicSubnetConfig, isolatedSubnetConfig],
+      natGateways: 0,
+    });
+
+    // Create VPC endpoint to hide DDB interactions from Internet
+    discordEventsVpc.addGatewayEndpoint('DdbVpcEndpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+      subnets: [{
+        subnetType: ec2.SubnetType.ISOLATED,
+      },],
+    });
+    
+    // Create docker container definition from Dockerfile in discord-events
     const discordEventsImage: ecrAssets.DockerImageAsset = new ecrAssets.DockerImageAsset(
       this, 'DiscordEventsImage', {
       directory: '../discord-events', // relative to package.json
@@ -59,10 +90,10 @@ export class DiscordEventsStack extends cdk.Stack {
         ...props.environmentVariables,
       },
     });
-  
-    const taskDefinition: ecs.TaskDefinition = new ecs.Ec2TaskDefinition(this, 'Ec2DiscordEventsTaskDefinition');
-    
-    taskDefinition.addContainer('DiscordEventsBotContainer', {
+
+    const taskDefinition: ecs.TaskDefinition = new ecs.Ec2TaskDefinition(this, 'DiscordEventsEc2TaskDefinition');
+
+    taskDefinition.addContainer('DiscordEventsContainer', {
       image: ecs.ContainerImage.fromDockerImageAsset(discordEventsImage),
       memoryLimitMiB: 512,
       cpu: 5,
@@ -76,10 +107,12 @@ export class DiscordEventsStack extends cdk.Stack {
 
     const discordEventsCluster: ecs.Cluster = new ecs.Cluster(this, 'DiscordEventsCluster', {
       clusterName: props.clusterName,
+      vpc: discordEventsVpc,
     });
 
     discordEventsCluster.addCapacity('DiscordEventsClusterScalingGroup', {
       instanceType: new ec2.InstanceType('t2.micro'),
+      machineImageType: ecs.MachineImageType.BOTTLEROCKET,
       desiredCapacity: 1,
       maxCapacity: 1,
       minCapacity: 0,
