@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * Set of string utils pertaining to the Discord model
  */
-public class StringUtils {
+public class DiscordStringUtils {
 
     private static final String TOKENIZER_GROUP_DELIMITER_REGEX = "\"([^\"]*)\"|'([^']*)'|(\\S+)";
 

@@ -3,17 +3,17 @@ package com.alvyn279.discord;
 import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.provider.RootModule;
-import com.alvyn279.discord.strategy.CreateDiscordEventStrategy;
-import com.alvyn279.discord.strategy.CreateFullDiscordEventStrategy;
+import com.alvyn279.discord.strategy.*;
 import com.alvyn279.discord.utils.Constants;
 import com.alvyn279.discord.utils.EnvironmentUtils;
-import com.alvyn279.discord.utils.StringUtils;
+import com.alvyn279.discord.utils.DiscordStringUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -65,7 +65,7 @@ public class DiscordEventsBot {
                     // COMMAND FORMAT: !create-event [str] [date] [time] [str]
                     //                 ex: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
-                    List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
+                    List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
                     return createDiscordEventStrategy.execute(DiscordCommandContext.builder()
                         .tokens(tokens)
                         .guild(guild)
@@ -78,16 +78,35 @@ public class DiscordEventsBot {
         commands.put(DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
-                        // TODO
-                        // COMMAND FORMAT: !list-events [num] |
-                        //                 !list-events [date] |
-                        //                 !list-events [startDate] [endDate]
-                        //                 ex: !list-events 3
+                    // COMMAND FORMAT: !list-events [num] |
+                    //                 !list-events [date] |
+                    //                 !list-events [startDate] [endDate]
+                    List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
+                    ListDiscordEventsStrategy listDiscordEventsStrategy;
 
-                        return Mono.empty();
+                    if (tokens.size() == 1) {
+                        listDiscordEventsStrategy = injector.getInstance(ListDiscordEventsDefaultStrategy.class);
+                    } else if (tokens.size() < 3) {
+                        if (StringUtils.isNumeric(tokens.get(1))) {
+                            //!list-events [num]
+                            listDiscordEventsStrategy = injector.getInstance(ListUpcomingDiscordEventsStrategy.class);
+                        } else {
+                            // TODO !list-events [date]
+                            listDiscordEventsStrategy = null;
+                        }
+                    } else {
+                        // TODO !list-events [startDate] [endDate]
+                        listDiscordEventsStrategy = null;
                     }
-                )
-            ).then());
+
+                    return listDiscordEventsStrategy.execute(DiscordCommandContext.builder()
+                        .guild(guild)
+                        .messageCreateEvent(event)
+                        .tokens(tokens)
+                        .build());
+                })
+            )
+        );
     }
 
     public static void main(String[] args) {

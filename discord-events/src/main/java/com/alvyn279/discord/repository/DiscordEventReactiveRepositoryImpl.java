@@ -70,8 +70,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
 
         QueryRequest queryRequest = QueryRequest.builder()
             .tableName(DISCORD_EVENTS_TABLE_NAME)
-            .keyConditionExpression("#guildId = :guildIdValue")
-            .keyConditionExpression("#datetimeCreatedBy >= :datetimeCreatedByValue")
+            .keyConditionExpression("#guildId = :guildIdValue and #datetimeCreatedBy >= :datetimeCreatedByValue")
             .limit(args.getUpcomingLimit())
             .expressionAttributeNames(expressionAttributesNames)
             .expressionAttributeValues(expressionAttributeValues)

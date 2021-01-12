@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
+import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -45,6 +46,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
             .build();
 
         //TODO: check existence before writing
+        //TODO: fix error handling
 
         return discordEventReactiveRepository.saveDiscordEvent(discordEvent)
             // Announce newly created event
@@ -53,6 +55,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
                     embedCreateSpec
                         .setTitle(discordEventRes.getName())
                         .setDescription(discordEventRes.getDescription())
+                        .setColor(Color.GREEN)
                         .addField(
                             DiscordEvent.CREATED_BY_LABEL,
                             msg.getAuthor().get().getUsername(),

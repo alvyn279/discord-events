@@ -45,6 +45,10 @@ dependencies {
 
     // Slf4j-simple
     implementation 'org.slf4j:slf4j-simple:1.7.30'
+
+    // Apache Commons Lang
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+
 }
 
 test {
