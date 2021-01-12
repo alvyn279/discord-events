@@ -6,7 +6,8 @@ import reactor.core.publisher.Mono;
 
 
 /**
- * Strategy interface to perform the creation of a {@link DiscordEvent}
+ * Strategy interface to perform the creation of
+ * a {@link DiscordEvent} in the data store.
  */
 public interface CreateDiscordEventStrategy {
 
