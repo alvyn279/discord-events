@@ -1,5 +1,7 @@
 package com.alvyn279.discord.provider;
 
+import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
+import com.alvyn279.discord.repository.DiscordEventReactiveRepositoryImpl;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -34,6 +36,14 @@ public class RootModule extends AbstractModule {
         return DynamoDbAsyncClient.builder()
             .region(region)
             .credentialsProvider(DefaultCredentialsProvider.builder().build())
+            .build();
+    }
+
+    @Provides
+    static DiscordEventReactiveRepository provideDiscordEventReactiveRepository(
+        DynamoDbAsyncClient client) {
+        return DiscordEventReactiveRepositoryImpl.builder()
+            .client(client)
             .build();
     }
 }

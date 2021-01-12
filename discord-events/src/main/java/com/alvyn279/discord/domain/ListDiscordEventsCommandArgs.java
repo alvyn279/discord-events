@@ -11,7 +11,7 @@ import java.time.Instant;
  */
 @Data
 @Builder
-public class ListDiscordEventsCommandInput {
+public class ListDiscordEventsCommandArgs {
     String guildId;
     String userId;
     Integer upcomingLimit;

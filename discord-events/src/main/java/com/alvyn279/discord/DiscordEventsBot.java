@@ -1,12 +1,11 @@
 package com.alvyn279.discord;
 
 import com.alvyn279.discord.domain.CommandReaction;
-import com.alvyn279.discord.domain.DiscordEvent;
+import com.alvyn279.discord.domain.DiscordEventCommandContext;
 import com.alvyn279.discord.provider.RootModule;
-import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
-import com.alvyn279.discord.repository.DiscordEventReactiveRepositoryImpl;
+import com.alvyn279.discord.strategy.CreateDiscordEventStrategy;
+import com.alvyn279.discord.strategy.CreateFullDiscordEventStrategy;
 import com.alvyn279.discord.utils.Constants;
-import com.alvyn279.discord.utils.DateUtils;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import com.alvyn279.discord.utils.StringUtils;
 import com.google.inject.Guice;
@@ -14,7 +13,6 @@ import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Message;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,20 +30,20 @@ import java.util.Map;
 @Slf4j
 public class DiscordEventsBot {
 
+    public static final String BOT = "BOT";
+
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
     private static final String DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS = "list-events";
-    private static final String BOT = "BOT";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
 
     static {
         final Injector injector = Guice.createInjector(new RootModule());
-        final DiscordEventReactiveRepository discordEventRepo = injector.getInstance(
-            DiscordEventReactiveRepositoryImpl.class
-        );
+        final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
+            CreateFullDiscordEventStrategy.class);
 
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
             event.getMessage().getChannel()
@@ -68,53 +66,28 @@ public class DiscordEventsBot {
                     //                 ex: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
                     List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
-                    Message msg = event.getMessage();
-                    DiscordEvent discordEvent = DiscordEvent.builder()
-                        .guildId(guild.getId().asString())
-                        .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
-                        .createdBy(msg.getAuthor().isPresent() ?
-                            msg.getAuthor().get().getId().asString() : BOT)
-                        .messageId(msg.getId().asString())
-                        .name(tokens.get(1))
-                        .description(tokens.get(4))
-                        .build();
-
-                    // Write discord event to DDB
-                    return discordEventRepo.saveDiscordEvent(discordEvent)
-                        // Announce newly created event
-                        .flatMap(discordEventRes -> msg.getChannel()
-                            .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec ->
-                                embedCreateSpec
-                                    .setTitle(discordEventRes.getName())
-                                    .setDescription(discordEventRes.getDescription())
-                                    .addField(
-                                        DiscordEvent.CREATED_BY_LABEL,
-                                        msg.getAuthor().get().getUsername(),
-                                        true)
-                                    .addField(
-                                        DiscordEvent.DATETIME_LABEL,
-                                        DateUtils.prettyPrintInstantInLocalTimezone(discordEventRes.getTimestamp()),
-                                        true)
-                                    .setTimestamp(Instant.now())
-                            ))
-                        );
+                    return createDiscordEventStrategy.execute(DiscordEventCommandContext.builder()
+                        .tokens(tokens)
+                        .guild(guild)
+                        .messageCreateEvent(event)
+                        .build()
+                    );
                 })
-                .then())
-        );
+            ));
 
         commands.put(DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
-                    // TODO
-                    // COMMAND FORMAT: !list-events [num] |
-                    //                 !list-events [date] |
-                    //                 !list-events [startDate] [endDate]
-                    //                 ex: !list-events 3
-                    return Mono.empty();
-                }
-            )
-            .then()
-        ));
+                        // TODO
+                        // COMMAND FORMAT: !list-events [num] |
+                        //                 !list-events [date] |
+                        //                 !list-events [startDate] [endDate]
+                        //                 ex: !list-events 3
+
+                        return Mono.empty();
+                    }
+                )
+            ).then());
     }
 
     public static void main(String[] args) {

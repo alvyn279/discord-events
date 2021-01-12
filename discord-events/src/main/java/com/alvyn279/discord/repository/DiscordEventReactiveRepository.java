@@ -1,7 +1,7 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
-import com.alvyn279.discord.domain.ListDiscordEventsCommandInput;
+import com.alvyn279.discord.domain.ListDiscordEventsCommandArgs;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,27 +24,27 @@ public interface DiscordEventReactiveRepository {
      * Fetches upcoming {@link DiscordEvent}s from a datastore in a
      * reactive manner
      *
-     * @param input {@link ListDiscordEventsCommandInput} with `upcomingLimit`,
+     * @param args {@link ListDiscordEventsCommandArgs} with `upcomingLimit`,
      *                                                  `guildId`, `currentDate`
      * @return Mono<List<DiscordEvent>> events
      */
-    Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandInput input);
+    Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandArgs args);
 
     /**
      * Fetches {@link DiscordEvent}s on a given date from a datastore in a
      * reactive manner
      *
-     * @param input {@link ListDiscordEventsCommandInput} with `date`, `guildId`
+     * @param args {@link ListDiscordEventsCommandArgs} with `date`, `guildId`
      * @return Mono<List<DiscordEvent>> events
      */
-    Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandInput input);
+    Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandArgs args);
 
     /**
      * Fetches {@link DiscordEvent}s in a given date range from a datastore in a
      * reactive manner
      *
-     * @param input {@link ListDiscordEventsCommandInput} with `startDate`,`endDate`, `guildId`
+     * @param args {@link ListDiscordEventsCommandArgs} with `startDate`,`endDate`, `guildId`
      * @return Mono<List<DiscordEvent>> events
      */
-    Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandInput input);
+    Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandArgs args);
 }

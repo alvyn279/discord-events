@@ -1,9 +1,9 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
-import com.alvyn279.discord.domain.ListDiscordEventsCommandInput;
+import com.alvyn279.discord.domain.ListDiscordEventsCommandArgs;
 import com.alvyn279.discord.utils.EnvironmentUtils;
-import com.google.inject.Inject;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.http.SdkHttpResponse;
@@ -24,17 +24,13 @@ import java.util.stream.Collectors;
  * It implements read/writes in a reactive manner.
  */
 @Slf4j
+@Builder
 public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveRepository {
 
     private static final String DISCORD_EVENTS_TABLE_NAME_KEY = "DISCORD_EVENTS_TABLE_NAME";
     private static final String DISCORD_EVENTS_TABLE_NAME = EnvironmentUtils.getEnvVar(DISCORD_EVENTS_TABLE_NAME_KEY);
 
     private final DynamoDbAsyncClient client;
-
-    @Inject
-    DiscordEventReactiveRepositoryImpl(DynamoDbAsyncClient client) {
-        this.client = client;
-    }
 
     @Override
     public Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent) {
@@ -59,7 +55,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandInput input) {
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandArgs args) {
         // TODO: check input.guildId, input.currentDate, input.upcomingLimit
 
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
@@ -68,15 +64,15 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
         );
 
         Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
-            ":guildIdValue", AttributeValue.builder().s(input.getGuildId()).build(),
-            ":datetimeCreatedByValue", AttributeValue.builder().s(input.getCurrentDate().toString()).build()
+            ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
+            ":datetimeCreatedByValue", AttributeValue.builder().s(args.getCurrentDate().toString()).build()
         );
 
         QueryRequest queryRequest = QueryRequest.builder()
             .tableName(DISCORD_EVENTS_TABLE_NAME)
             .keyConditionExpression("#guildId = :guildIdValue")
             .keyConditionExpression("#datetimeCreatedBy >= :datetimeCreatedByValue")
-            .limit(input.getUpcomingLimit())
+            .limit(args.getUpcomingLimit())
             .expressionAttributeNames(expressionAttributesNames)
             .expressionAttributeValues(expressionAttributeValues)
             .build();
@@ -96,13 +92,13 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandInput input) {
+    public Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandArgs input) {
         // TODO: implement
         return null;
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandInput input) {
+    public Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandArgs input) {
         // TODO: implement
         return null;
     }
