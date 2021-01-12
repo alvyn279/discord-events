@@ -1,13 +1,21 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
+import com.alvyn279.discord.domain.ListDiscordEventsCommandInput;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.utils.ImmutableMap;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link DiscordEventReactiveRepository} where the repository uses
@@ -38,15 +46,64 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
         return Mono.fromCompletionStage(client.putItem(putDiscordEventRequest))
             .flatMap(putItemResponse -> {
                 SdkHttpResponse httpResponse = putItemResponse.sdkHttpResponse();
-                log.info(String.format("Wrote to DDB event %s: %s %s",
+                log.info("Wrote to DDB event {}: {} {}",
                     discordEvent.getMessageId(),
                     httpResponse.statusCode(),
-                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : ""));
+                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
                 return Mono.just(discordEvent);
             })
             .onErrorResume(throwable -> {
                 log.error("Error writing to DDB", throwable);
                 return Mono.just(discordEvent);
             });
+    }
+
+    @Override
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandInput input) {
+        // TODO: check input.guildId, input.currentDate, input.upcomingLimit
+
+        Map<String, String> expressionAttributesNames = ImmutableMap.of(
+            "#guildId", DiscordEvent.PARTITION_KEY,
+            "#datetimeCreatedBy", DiscordEvent.SORT_KEY
+        );
+
+        Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
+            ":guildIdValue", AttributeValue.builder().s(input.getGuildId()).build(),
+            ":datetimeCreatedByValue", AttributeValue.builder().s(input.getCurrentDate().toString()).build()
+        );
+
+        QueryRequest queryRequest = QueryRequest.builder()
+            .tableName(DISCORD_EVENTS_TABLE_NAME)
+            .keyConditionExpression("#guildId = :guildIdValue")
+            .keyConditionExpression("#datetimeCreatedBy >= :datetimeCreatedByValue")
+            .limit(input.getUpcomingLimit())
+            .expressionAttributeNames(expressionAttributesNames)
+            .expressionAttributeValues(expressionAttributeValues)
+            .build();
+
+        return Mono.fromCompletionStage(client.query(queryRequest))
+            .flatMap(queryResponse -> {
+                log.info("Read from DDB table: {} items", queryResponse.count());
+                return Mono.just(queryResponse.items().stream()
+                    .map(DiscordEvent::fromDDBMap)
+                    .collect(Collectors.toList())
+                );
+            })
+            .onErrorResume(throwable -> {
+                log.error("Error reading from DDB", throwable);
+                return Mono.error(throwable);
+            });
+    }
+
+    @Override
+    public Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandInput input) {
+        // TODO: implement
+        return null;
+    }
+
+    @Override
+    public Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandInput input) {
+        // TODO: implement
+        return null;
     }
 }

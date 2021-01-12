@@ -36,6 +36,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
+    private static final String DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS = "list-events";
     private static final String BOT = "BOT";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
@@ -63,7 +64,8 @@ public class DiscordEventsBot {
         commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
-                    // COMMAND FORMAT: !create-event “Event title” 2021/02/02 19:00 “Event description”
+                    // COMMAND FORMAT: !create-event [str] [date] [time] [str]
+                    //                 ex: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
                     List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
                     Message msg = event.getMessage();
@@ -99,6 +101,20 @@ public class DiscordEventsBot {
                 })
                 .then())
         );
+
+        commands.put(DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS, event -> event.getGuild()
+            .flatMap(guild -> Mono.just(event.getMessage().getContent())
+                .flatMap(s -> {
+                    // TODO
+                    // COMMAND FORMAT: !list-events [num] |
+                    //                 !list-events [date] |
+                    //                 !list-events [startDate] [endDate]
+                    //                 ex: !list-events 3
+                    return Mono.empty();
+                }
+            )
+            .then()
+        ));
     }
 
     public static void main(String[] args) {

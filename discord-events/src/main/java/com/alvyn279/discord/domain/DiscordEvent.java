@@ -23,12 +23,12 @@ import java.util.Map;
 @Data
 public class DiscordEvent {
     // Key names for DiscordEvent entity in DDB Table (attrs)
-    private static final String PARTITION_KEY = "guildId";
-    private static final String SORT_KEY = "datetimeCreatedBy";
-    private static final String MESSAGE_ID_KEY = "messageId";
-    private static final String CREATED_BY_KEY = "createdBy";
-    private static final String NAME_KEY = "name";
-    private static final String DESCRIPTION_KEY = "description";
+    public static final String PARTITION_KEY = "guildId";
+    public static final String SORT_KEY = "datetimeCreatedBy";
+    public static final String MESSAGE_ID_KEY = "messageId";
+    public static final String CREATED_BY_KEY = "createdBy";
+    public static final String NAME_KEY = "name";
+    public static final String DESCRIPTION_KEY = "description";
 
     public static final String MESSAGE_ID_LABEL = "Message ID";
     public static final String CREATED_BY_LABEL = "Created by";
