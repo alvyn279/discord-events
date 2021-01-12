@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Builder
-public class DiscordEventCommandContext {
+public class DiscordCommandContext {
     @NonNull
     List<String> tokens;
 

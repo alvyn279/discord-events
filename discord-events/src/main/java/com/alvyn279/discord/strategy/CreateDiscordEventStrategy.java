@@ -1,7 +1,7 @@
 package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.domain.DiscordEvent;
-import com.alvyn279.discord.domain.DiscordEventCommandContext;
+import com.alvyn279.discord.domain.DiscordCommandContext;
 import reactor.core.publisher.Mono;
 
 
@@ -16,5 +16,5 @@ public interface CreateDiscordEventStrategy {
      * @param context Discord context with arguments
      * @return Mono<Void>
      */
-    public Mono<Void> execute(DiscordEventCommandContext context);
+    public Mono<Void> execute(DiscordCommandContext context);
 }

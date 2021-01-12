@@ -1,7 +1,7 @@
 package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.DiscordEventsBot;
-import com.alvyn279.discord.domain.DiscordEventCommandContext;
+import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DateUtils;
@@ -28,7 +28,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
     }
 
     @Override
-    public Mono<Void> execute(DiscordEventCommandContext context) {
+    public Mono<Void> execute(DiscordCommandContext context) {
         MessageCreateEvent event = context.getMessageCreateEvent();
         Guild guild = context.getGuild();
         List<String> tokens = context.getTokens();

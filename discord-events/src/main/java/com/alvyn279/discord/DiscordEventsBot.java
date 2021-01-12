@@ -1,7 +1,7 @@
 package com.alvyn279.discord;
 
 import com.alvyn279.discord.domain.CommandReaction;
-import com.alvyn279.discord.domain.DiscordEventCommandContext;
+import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.provider.RootModule;
 import com.alvyn279.discord.strategy.CreateDiscordEventStrategy;
 import com.alvyn279.discord.strategy.CreateFullDiscordEventStrategy;
@@ -66,7 +66,7 @@ public class DiscordEventsBot {
                     //                 ex: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
                     List<String> tokens = StringUtils.tokenizeCommandAndArgs(s);
-                    return createDiscordEventStrategy.execute(DiscordEventCommandContext.builder()
+                    return createDiscordEventStrategy.execute(DiscordCommandContext.builder()
                         .tokens(tokens)
                         .guild(guild)
                         .messageCreateEvent(event)

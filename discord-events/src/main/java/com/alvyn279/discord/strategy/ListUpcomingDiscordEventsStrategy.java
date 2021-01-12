@@ -1,6 +1,6 @@
 package com.alvyn279.discord.strategy;
 
-import com.alvyn279.discord.domain.DiscordEventCommandContext;
+import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.inject.Inject;
 import reactor.core.publisher.Mono;
@@ -19,7 +19,7 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
     }
 
     @Override
-    public Mono<Void> execute(DiscordEventCommandContext context) {
+    public Mono<Void> execute(DiscordCommandContext context) {
         // TODO
         return Mono.empty();
     }
