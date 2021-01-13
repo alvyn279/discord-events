@@ -15,8 +15,7 @@ public class ListDiscordEventsCommandArgs {
     String guildId;
     String userId;
     Integer upcomingLimit;
-    Instant currentDate;
-    Instant date;
-    Instant startDate;
-    Instant endDate;
+    Instant currentDateTime;
+    Instant startDateTime;
+    Instant endDateTime;
 }

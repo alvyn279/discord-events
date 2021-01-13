@@ -31,20 +31,11 @@ public interface DiscordEventReactiveRepository {
     Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandArgs args);
 
     /**
-     * Fetches {@link DiscordEvent}s on a given date from a datastore in a
+     * Fetches {@link DiscordEvent}s in a given date time range from a datastore in a
      * reactive manner
      *
-     * @param args {@link ListDiscordEventsCommandArgs} with `date`, `guildId`
+     * @param args {@link ListDiscordEventsCommandArgs} with `startDateTime`,`endDateTime`, `guildId`
      * @return Mono<List<DiscordEvent>> events
      */
-    Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandArgs args);
-
-    /**
-     * Fetches {@link DiscordEvent}s in a given date range from a datastore in a
-     * reactive manner
-     *
-     * @param args {@link ListDiscordEventsCommandArgs} with `startDate`,`endDate`, `guildId`
-     * @return Mono<List<DiscordEvent>> events
-     */
-    Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandArgs args);
+    Mono<List<DiscordEvent>> listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs args);
 }

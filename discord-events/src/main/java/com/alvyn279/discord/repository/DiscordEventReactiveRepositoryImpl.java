@@ -65,7 +65,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
 
         Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
             ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
-            ":datetimeCreatedByValue", AttributeValue.builder().s(args.getCurrentDate().toString()).build()
+            ":datetimeCreatedByValue", AttributeValue.builder().s(args.getCurrentDateTime().toString()).build()
         );
 
         QueryRequest queryRequest = QueryRequest.builder()
@@ -78,27 +78,51 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
 
         return Mono.fromCompletionStage(client.query(queryRequest))
             .flatMap(queryResponse -> {
-                log.info("Read from DDB table: {} items", queryResponse.count());
+                log.info("Read upcoming events from DDB table: {} items", queryResponse.count());
                 return Mono.just(queryResponse.items().stream()
                     .map(DiscordEvent::fromDDBMap)
                     .collect(Collectors.toList())
                 );
             })
             .onErrorResume(throwable -> {
-                log.error("Error reading from DDB", throwable);
+                log.error("Error reading upcoming events from DDB", throwable);
                 return Mono.error(throwable);
             });
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByDate(ListDiscordEventsCommandArgs input) {
-        // TODO: implement
-        return null;
-    }
+    public Mono<List<DiscordEvent>> listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs args) {
+        // TODO: check input.guildId, input.startDateTime, input.endDateTime
 
-    @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByDateRange(ListDiscordEventsCommandArgs input) {
-        // TODO: implement
-        return null;
+        Map<String, String> expressionAttributesNames = ImmutableMap.of(
+            "#guildId", DiscordEvent.PARTITION_KEY,
+            "#datetimeCreatedBy", DiscordEvent.SORT_KEY
+        );
+
+        Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
+            ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
+            ":dateTimeStart", AttributeValue.builder().s(args.getStartDateTime().toString()).build(),
+            ":dateTimeEnd", AttributeValue.builder().s(args.getEndDateTime().toString()).build()
+        );
+
+        QueryRequest queryRequest = QueryRequest.builder()
+            .tableName(DISCORD_EVENTS_TABLE_NAME)
+            .keyConditionExpression("#guildId = :guildIdValue and #datetimeCreatedBy between :dateTimeStart and :dateTimeEnd")
+            .expressionAttributeNames(expressionAttributesNames)
+            .expressionAttributeValues(expressionAttributeValues)
+            .build();
+
+        return Mono.fromCompletionStage(client.query(queryRequest))
+            .flatMap(queryResponse -> {
+                log.info("Read events by range from DDB table: {} items", queryResponse.count());
+                return Mono.just(queryResponse.items().stream()
+                    .map(DiscordEvent::fromDDBMap)
+                    .collect(Collectors.toList())
+                );
+            })
+            .onErrorResume(throwable -> {
+                log.error("Error reading events by range from DDB", throwable);
+                return Mono.error(throwable);
+            });
     }
 }

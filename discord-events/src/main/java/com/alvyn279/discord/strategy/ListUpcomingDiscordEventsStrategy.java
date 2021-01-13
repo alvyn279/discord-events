@@ -32,7 +32,7 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
         ListDiscordEventsCommandArgs commandArgs = ListDiscordEventsCommandArgs.builder()
             .guildId(context.getGuild().getId().asString())
             .upcomingLimit(Integer.parseInt(context.getTokens().get(1)))
-            .currentDate(Instant.now())
+            .currentDateTime(Instant.now())
             .build();
 
         return discordEventReactiveRepository.listDiscordEventsByUpcoming(commandArgs)
