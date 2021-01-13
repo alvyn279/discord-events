@@ -9,6 +9,10 @@ import discord4j.core.spec.EmbedCreateSpec;
  */
 public class BotMessages {
 
+    public static String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
+    public static String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
+        " commands correctly.";
+
     /**
      * Creates a discord events summary used in the !list-events command
      * @param embedCreateSpec embedCreateSpec to be modified

@@ -1,5 +1,6 @@
 package com.alvyn279.discord;
 
+import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.provider.RootModule;
@@ -12,6 +13,7 @@ import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.rest.util.Color;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -132,7 +134,13 @@ public class DiscordEventsBot {
                         .retry(1)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
-                            return Mono.empty();
+                            return messageCreateEvent.getMessage().getChannel()
+                                .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec -> embedCreateSpec
+                                    .setColor(Color.RED)
+                                    .setTitle(BotMessages.ERROR_STATE_GENERIC_TITLE)
+                                    .setDescription(BotMessages.ERROR_STATE_GENERIC_DESCRIPTION)
+                                ))
+                                .then();
                         }))
                     .next()))
             .subscribe();

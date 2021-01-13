@@ -50,7 +50,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
             })
             .onErrorResume(throwable -> {
                 log.error("Error writing to DDB", throwable);
-                return Mono.just(discordEvent);
+                return Mono.error(throwable);
             });
     }
 
