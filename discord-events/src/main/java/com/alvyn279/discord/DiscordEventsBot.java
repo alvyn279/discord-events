@@ -97,8 +97,8 @@ public class DiscordEventsBot {
                             listDiscordEventsStrategy = null;
                         }
                     } else {
-                        // TODO !list-events [startDate] [endDate]
-                        listDiscordEventsStrategy = null;
+                        // !list-events [startDate] [endDate]
+                        listDiscordEventsStrategy = injector.getInstance(ListDiscordEventsInDateRangeStrategy.class);
                     }
 
                     return listDiscordEventsStrategy.execute(DiscordCommandContext.builder()

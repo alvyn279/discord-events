@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 /**
@@ -16,7 +17,24 @@ public class DateUtils {
     public static final Locale DEFAULT_LOCALE = Locale.CANADA;
 
     /**
-     * Creates an {@link Instant} object from a date string and time string
+     * Creates an {@link Instant} object from a date string.
+     * Default timezone is set to EST.
+     *
+     * @param dateString date string of format MM/DD/YYYY
+     * @return Instant object
+     */
+    public static Instant fromDate(String dateString) {
+        return LocalDateTime
+            .parse(
+                String.format("%1$s, 0:00", dateString),
+                DateTimeFormatter.ofPattern("M/d/uuuu, H:mm", Locale.CANADA))
+            .atZone(DEFAULT_TIMEZONE)
+            .toInstant();
+    }
+
+    /**
+     * Creates an {@link Instant} object from a date string and time string.
+     * Default timezone is set to EST.
      *
      * @param dateString date string of format MM/DD/YYYY
      * @param timeString time of day of format 23:59
@@ -29,6 +47,18 @@ public class DateUtils {
                 DateTimeFormatter.ofPattern("M/d/uuuu, H:mm", Locale.CANADA))
             .atZone(DEFAULT_TIMEZONE)
             .toInstant();
+    }
+
+    /**
+     * Returns a copy of an {@link Instant} representing
+     * a 24-hour forward leap in time.
+     *
+     * @param dateTime instant object
+     * @return instant of the next day
+     */
+    public static Instant nextDaySameTime(Instant dateTime) {
+        return dateTime
+            .plus(1, ChronoUnit.DAYS);
     }
 
     /**
