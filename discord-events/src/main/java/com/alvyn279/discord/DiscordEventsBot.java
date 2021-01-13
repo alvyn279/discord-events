@@ -93,8 +93,8 @@ public class DiscordEventsBot {
                             //!list-events [num]
                             listDiscordEventsStrategy = injector.getInstance(ListUpcomingDiscordEventsStrategy.class);
                         } else {
-                            // TODO !list-events [date]
-                            listDiscordEventsStrategy = null;
+                            // !list-events [date]
+                            listDiscordEventsStrategy = injector.getInstance(ListDiscordEventsOnDateStrategy.class);
                         }
                     } else {
                         // !list-events [startDate] [endDate]
