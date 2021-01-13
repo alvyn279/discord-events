@@ -35,7 +35,6 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
             .currentDate(Instant.now())
             .build();
 
-        //TODO: error handling
         return discordEventReactiveRepository.listDiscordEventsByUpcoming(commandArgs)
             .flatMap(discordEvents -> context.getMessageCreateEvent().getMessage().getChannel()
                 .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec -> {

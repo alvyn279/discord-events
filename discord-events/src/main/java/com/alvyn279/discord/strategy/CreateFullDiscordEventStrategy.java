@@ -46,7 +46,6 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
             .build();
 
         //TODO: check existence before writing
-        //TODO: fix error handling
 
         return discordEventReactiveRepository.saveDiscordEvent(discordEvent)
             // Announce newly created event
