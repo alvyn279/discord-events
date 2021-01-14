@@ -13,7 +13,6 @@ import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.rest.util.Color;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -36,9 +35,10 @@ public class DiscordEventsBot {
 
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
-    private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
+    private static final String DISCORD_EVENTS_COMMAND_HELP = "events-help";
     private static final String DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS = "list-events";
+    private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
 
@@ -46,6 +46,7 @@ public class DiscordEventsBot {
         final Injector injector = Guice.createInjector(new RootModule());
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
+        final HelpStrategy helpStrategy = new HelpStrategy();
 
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
             event.getMessage().getChannel()
@@ -60,6 +61,8 @@ public class DiscordEventsBot {
                     }))
                 .then()
         );
+
+        commands.put(DISCORD_EVENTS_COMMAND_HELP, helpStrategy::execute);
 
         commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
@@ -135,11 +138,7 @@ public class DiscordEventsBot {
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
                             return messageCreateEvent.getMessage().getChannel()
-                                .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec -> embedCreateSpec
-                                    .setColor(Color.RED)
-                                    .setTitle(BotMessages.ERROR_STATE_GENERIC_TITLE)
-                                    .setDescription(BotMessages.ERROR_STATE_GENERIC_DESCRIPTION)
-                                ))
+                                .flatMap(messageChannel -> messageChannel.createEmbed(BotMessages::oops))
                                 .then();
                         }))
                     .next()))
