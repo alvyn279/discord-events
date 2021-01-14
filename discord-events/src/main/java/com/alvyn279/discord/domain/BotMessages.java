@@ -32,6 +32,7 @@ public class BotMessages {
         "`[str]:   \"some text\"`";
     public static final String HELP_SECTION_LIST = "Listing events";
     public static final String HELP_SECTION_LIST_INFO =
+        "`!list-events`\n" +
         "`!list-events [upcoming:num]`\n" +
         "`!list-events [on:date]`\n" +
         "`!list-events [from:date] [to:date]`";
