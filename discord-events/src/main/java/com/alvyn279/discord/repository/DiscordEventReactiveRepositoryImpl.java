@@ -1,6 +1,7 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
+import com.alvyn279.discord.exception.AccessDeniedException;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import reactor.core.publisher.Mono;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.utils.ImmutableMap;
@@ -32,24 +34,33 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     private final DynamoDbAsyncClient client;
 
     @Override
-    public Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent) {
-        PutItemRequest putDiscordEventRequest = PutItemRequest.builder()
-            .tableName(DISCORD_EVENTS_TABLE_NAME)
-            .item(DiscordEvent.toDDBItem(discordEvent))
-            .build();
+    public Mono<DiscordEvent> deleteDiscordEvent(DeleteDiscordEventCommandArgs args) {
 
-        return Mono.fromCompletionStage(client.putItem(putDiscordEventRequest))
-            .flatMap(putItemResponse -> {
-                SdkHttpResponse httpResponse = putItemResponse.sdkHttpResponse();
-                log.info("Wrote to DDB event {}: {} {}",
-                    discordEvent.getMessageId(),
-                    httpResponse.statusCode(),
-                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
-                return Mono.just(discordEvent);
-            })
-            .onErrorResume(throwable -> {
-                log.error("Error writing to DDB", throwable);
-                return Mono.error(throwable);
+        return getDiscordEventByMessageId(args, args.getDeleteCode())
+            .flatMap(discordEvent -> {
+                Map<String, AttributeValue> keysAttributeValues = ImmutableMap.of(
+                    DiscordEvent.PARTITION_KEY, AttributeValue.builder().s(discordEvent.getGuildId()).build(),
+                    DiscordEvent.SORT_KEY, AttributeValue.builder().s(discordEvent.datetimeCreatedBy()).build()
+                );
+
+                DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder()
+                    .tableName(DISCORD_EVENTS_TABLE_NAME)
+                    .key(keysAttributeValues)
+                    .build();
+
+                return Mono.fromCompletionStage(client.deleteItem(deleteItemRequest))
+                    .flatMap(queryResponse -> {
+                        SdkHttpResponse httpResponse = queryResponse.sdkHttpResponse();
+                        log.info("Deleted DDB event {}: {} {}",
+                            discordEvent.getMessageId(),
+                            httpResponse.statusCode(),
+                            httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
+                        return Mono.just(discordEvent);
+                    })
+                    .onErrorResume(throwable -> {
+                        log.error("Error deleting an event from DDB", throwable);
+                        return Mono.error(throwable);
+                    });
             });
     }
 
@@ -159,6 +170,87 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
             })
             .onErrorResume(throwable -> {
                 log.error("Error reading events by guild and filtering by user from DDB", throwable);
+                return Mono.error(throwable);
+            });
+    }
+
+    @Override
+    public Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent) {
+        PutItemRequest putDiscordEventRequest = PutItemRequest.builder()
+            .tableName(DISCORD_EVENTS_TABLE_NAME)
+            .item(DiscordEvent.toDDBItem(discordEvent))
+            .build();
+
+        return Mono.fromCompletionStage(client.putItem(putDiscordEventRequest))
+            .flatMap(putItemResponse -> {
+                SdkHttpResponse httpResponse = putItemResponse.sdkHttpResponse();
+                log.info("Wrote to DDB event {}: {} {}",
+                    discordEvent.getMessageId(),
+                    httpResponse.statusCode(),
+                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
+                return Mono.just(discordEvent);
+            })
+            .onErrorResume(throwable -> {
+                log.error("Error writing to DDB", throwable);
+                return Mono.error(throwable);
+            });
+    }
+
+    /**
+     * Helper method that gets a {@link DiscordEvent} from the DDB table based
+     * on a single unique identifier for all events within a discord server.
+     * <p>
+     * TEMPORARY: this can easily be replaced by adding an index to `messageId`
+     * on DDB table.
+     *
+     * @param args      context args (guild, user)
+     * @param messageId unique identifier for all the events in
+     * @return Mono<DiscordEvent>
+     */
+    private Mono<DiscordEvent> getDiscordEventByMessageId(DiscordEventsCommandArgs args, String messageId) {
+        Map<String, String> expressionAttributesNames = ImmutableMap.of(
+            "#guildId", DiscordEvent.PARTITION_KEY,
+            "#createdBy", DiscordEvent.CREATED_BY_KEY,
+            "#messageId", DiscordEvent.MESSAGE_ID_KEY
+        );
+
+        Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
+            ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
+            ":createdByValue", AttributeValue.builder().s(args.getUserId()).build(),
+            ":messageIdValue", AttributeValue.builder().s(messageId).build()
+        );
+
+        QueryRequest queryRequest = QueryRequest.builder()
+            .tableName(DISCORD_EVENTS_TABLE_NAME)
+            .keyConditionExpression("#guildId = :guildIdValue")
+            .filterExpression("#createdBy = :createdByValue and #messageId = :messageIdValue")
+            .expressionAttributeNames(expressionAttributesNames)
+            .expressionAttributeValues(expressionAttributeValues)
+            .build();
+
+        return Mono.fromCompletionStage(client.query(queryRequest))
+            .flatMap(queryResponse -> {
+                // Validate one event and its access rights
+                if (queryResponse.items().size() != 1) {
+                    return Mono.error(new Exception(String.format(
+                        "Found invalid amounts of events with a message ID: %s", messageId)));
+                }
+
+                log.info("Found event by message ID from DDB table");
+                DiscordEvent discordEvent = DiscordEvent.fromDDBMap(queryResponse.items().get(0));
+
+                if (!discordEvent.getCreatedBy().equals(args.getUserId())) {
+                    return Mono.error(new AccessDeniedException(String.format(
+                        "Access denied: User [%s] tried to obtain resource [%s] belonging to user [%s]",
+                        args.getUserId(),
+                        discordEvent.getMessageId(),
+                        discordEvent.getCreatedBy()
+                    )));
+                }
+                return Mono.just(discordEvent);
+            })
+            .onErrorResume(throwable -> {
+                log.error("Error finding one discord event from DDB", throwable);
                 return Mono.error(throwable);
             });
     }

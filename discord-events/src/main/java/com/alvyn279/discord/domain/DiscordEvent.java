@@ -70,6 +70,22 @@ public class DiscordEvent {
      */
     private final String description;
 
+
+    /**
+     * Returns `datetimeCreatedBy` string for user-defined DiscordEvent.
+     * This way end-user does not need to know how to build a
+     * {@link DatetimeCreatedBy}.
+     *
+     * @return string
+     */
+    public String datetimeCreatedBy() {
+        return DatetimeCreatedBy.builder()
+            .createdBy(createdBy)
+            .datetime(timestamp)
+            .build()
+            .asString();
+    }
+
     @Builder
     @Data
     private static class DatetimeCreatedBy {
