@@ -12,7 +12,7 @@ import java.util.List;
 public interface DiscordEventReactiveRepository {
 
     /**
-     * Saves a {@link DiscordEvent} to a datastore in a reactive manner
+     * Deletes one {@link DiscordEvent} from a datastore in a reactive manner
      *
      * @param args {@link DeleteDiscordEventCommandArgs} with `guildId`, `userId`, `deleteCode`
      * @return Mono<DiscordEvent> deleted event

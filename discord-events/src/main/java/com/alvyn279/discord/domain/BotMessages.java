@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,6 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BotMessages {
 
+    public static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
+    public static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
+        "You deleted the event called \"%s\" happening on %s.";
+    public static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
+    public static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
+        "You cannot delete \"%s\" because you are not the one that created it.";
     public static final String DISCORD_EVENTS_HELP_TITLE = "discord-events Help";
     public static final String DISCORD_EVENTS_THUMBNAIL_LINK =
         "https://cdn.betterttv.net/emote/57b377aae42b335143d48993/3x";
@@ -27,6 +34,9 @@ public class BotMessages {
     public static final String HELP_SECTION_CREATE = "Create event";
     public static final String HELP_SECTION_CREATE_INFO =
         "`!create-event [title:str] [date:date] [time:time] [description:str]`";
+    public static final String HELP_SECTION_DELETE = "Delete event";
+    public static final String HELP_SECTION_DELETE_INFO =
+        "`!delete-events [deleteCode:str]`";
     public static final String HELP_SECTION_FORMATS = "Formats";
     public static final String HELP_SECTION_FORMATS_INFO =
         "`[date]:  MM/DD/YYYY (ex: 01/16/2021, 2/5/2021)`\n" +
@@ -51,6 +61,7 @@ public class BotMessages {
     static {
         HELP_SECTION_TUPLE_LIST = ImmutableList.<SectionTuple>of(
             SectionTuple.builder().section(HELP_SECTION_CREATE).sectionInfo(HELP_SECTION_CREATE_INFO).build(),
+            SectionTuple.builder().section(HELP_SECTION_DELETE).sectionInfo(HELP_SECTION_DELETE_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_LIST).sectionInfo(HELP_SECTION_LIST_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_FORMATS).sectionInfo(HELP_SECTION_FORMATS_INFO).build()
         );
@@ -75,6 +86,48 @@ public class BotMessages {
                 .withEntityDescription()
                 .buildField()
         );
+    }
+
+    /**
+     * Confirmation message for deletion of a discord event
+     * @param embedCreateSpec embed to be modified
+     * @param discordEvent discord event that was just deleted
+     */
+    public static void attachDeleteConfirmationToEmbed(EmbedCreateSpec embedCreateSpec, DiscordEvent discordEvent) {
+        embedCreateSpec
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.GARBAGE,
+                DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE
+            ))
+            .setDescription(String.format(
+                DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR,
+                discordEvent.getName(),
+                DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
+            ))
+            .setColor(Color.GREEN)
+            .setTimestamp(Instant.now());
+    }
+
+    /**
+     * Confirmation message for access denied during
+     * deletion of a discord event
+     * @param embedCreateSpec embed to be modified
+     * @param discordEvent discord event that was attempted to be deleted
+     */
+    public static void attachDeleteAccessDeniedToEmbed(EmbedCreateSpec embedCreateSpec, DiscordEvent discordEvent) {
+        embedCreateSpec
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.RED_CROSS,
+                DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE
+            ))
+            .setDescription(String.format(
+                DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR,
+                discordEvent.getName()
+            ))
+            .setColor(Color.RED)
+            .setTimestamp(Instant.now());
     }
 
     /**

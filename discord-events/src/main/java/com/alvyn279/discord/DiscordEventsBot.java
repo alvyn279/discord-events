@@ -37,7 +37,8 @@ public class DiscordEventsBot {
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
     private static final String DISCORD_EVENTS_COMMAND_HELP = "events-help";
-    private static final String DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS = "list-events";
+    private static final String DISCORD_EVENTS_COMMAND_DELETE_EVENT = "delete-events";
+    private static final String DISCORD_EVENTS_COMMAND_LIST_EVENTS = "list-events";
     private static final String DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS = "my-events";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
@@ -47,6 +48,9 @@ public class DiscordEventsBot {
         final Injector injector = Guice.createInjector(new RootModule());
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
+        final DeleteDiscordEventsStrategy deleteDiscordEventsStrategy = injector.getInstance(
+            DeleteSingleDiscordEventStrategy.class
+        );
         final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
             ListDiscordEventsForCurrentUserStrategy.class
         );
@@ -84,7 +88,21 @@ public class DiscordEventsBot {
                 })
             ));
 
-        commands.put(DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS, event -> event.getGuild()
+        commands.put(DISCORD_EVENTS_COMMAND_DELETE_EVENT, event -> event.getGuild()
+            .flatMap(guild -> Mono.just(event.getMessage().getContent())
+                .flatMap(s -> {
+                    // COMMAND FORMAT: !delete-events [deleteCode:str]
+                    List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
+                    return deleteDiscordEventsStrategy.execute(DiscordCommandContext.builder()
+                        .tokens(tokens)
+                        .guild(guild)
+                        .messageCreateEvent(event)
+                        .build()
+                    );
+                })
+            ));
+
+        commands.put(DISCORD_EVENTS_COMMAND_LIST_EVENTS, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
                     // COMMAND FORMAT: !list-events [num] |

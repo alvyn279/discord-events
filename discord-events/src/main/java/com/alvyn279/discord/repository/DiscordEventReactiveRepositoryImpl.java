@@ -198,7 +198,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
 
     /**
      * Helper method that gets a {@link DiscordEvent} from the DDB table based
-     * on a single unique identifier for all events within a discord server.
+     * on a unique identifier for all events within a discord server.
      * <p>
      * TEMPORARY: this can easily be replaced by adding an index to `messageId`
      * on DDB table.
@@ -210,20 +210,18 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     private Mono<DiscordEvent> getDiscordEventByMessageId(DiscordEventsCommandArgs args, String messageId) {
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
             "#guildId", DiscordEvent.PARTITION_KEY,
-            "#createdBy", DiscordEvent.CREATED_BY_KEY,
             "#messageId", DiscordEvent.MESSAGE_ID_KEY
         );
 
         Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
             ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
-            ":createdByValue", AttributeValue.builder().s(args.getUserId()).build(),
             ":messageIdValue", AttributeValue.builder().s(messageId).build()
         );
 
         QueryRequest queryRequest = QueryRequest.builder()
             .tableName(DISCORD_EVENTS_TABLE_NAME)
             .keyConditionExpression("#guildId = :guildIdValue")
-            .filterExpression("#createdBy = :createdByValue and #messageId = :messageIdValue")
+            .filterExpression("#messageId = :messageIdValue")
             .expressionAttributeNames(expressionAttributesNames)
             .expressionAttributeValues(expressionAttributeValues)
             .build();
@@ -233,7 +231,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                 // Validate one event and its access rights
                 if (queryResponse.items().size() != 1) {
                     return Mono.error(new Exception(String.format(
-                        "Found invalid amounts of events with a message ID: %s", messageId)));
+                        "Found invalid amount of events with a message ID: %s", messageId)));
                 }
 
                 log.info("Found event by message ID from DDB table");
@@ -245,7 +243,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                         args.getUserId(),
                         discordEvent.getMessageId(),
                         discordEvent.getCreatedBy()
-                    )));
+                    ), discordEvent));
                 }
                 return Mono.just(discordEvent);
             })

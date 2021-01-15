@@ -52,7 +52,8 @@ public enum Emoji {
     BROKEN_HEART("broken_heart"),
 
     // discord-events
-    BOOK("book");
+    BOOK("book"),
+    GARBAGE("wastebasket");
 
     private final String discordNotation;
 
