@@ -38,6 +38,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
     private static final String DISCORD_EVENTS_COMMAND_HELP = "events-help";
     private static final String DISCORD_EVENTS_COMMAND_LIST_UPCOMING_EVENTS = "list-events";
+    private static final String DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS = "my-events";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
     private static final Map<String, CommandReaction> commands = new HashMap<>();
@@ -46,6 +47,9 @@ public class DiscordEventsBot {
         final Injector injector = Guice.createInjector(new RootModule());
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
+        final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
+            ListDiscordEventsForCurrentUserStrategy.class
+        );
         final HelpStrategy helpStrategy = new HelpStrategy();
 
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
@@ -112,6 +116,8 @@ public class DiscordEventsBot {
                 })
             )
         );
+
+        commands.put(DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS, listPersonalDiscordEventsStrategy::execute);
     }
 
     public static void main(String[] args) {

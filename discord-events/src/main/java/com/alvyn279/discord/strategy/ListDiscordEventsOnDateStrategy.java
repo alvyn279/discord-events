@@ -10,7 +10,6 @@ import discord4j.rest.util.Color;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements {@link ListDiscordEventsStrategy} by listing all events
@@ -49,15 +48,7 @@ public class ListDiscordEventsOnDateStrategy implements ListDiscordEventsStrateg
                         .setColor(Color.DEEP_SEA)
                         .setTimestamp(Instant.now());
 
-                    // TODO: run reactions to counter to describe event
-                    AtomicInteger eventCounter = new AtomicInteger(1);
-                    discordEvents.forEach(discordEvent ->
-                        BotMessages.createListDiscordEventItemSummary(
-                            embedCreateSpec,
-                            discordEvent,
-                            eventCounter.getAndIncrement()
-                        )
-                    );
+                    BotMessages.attachDiscordEventsListToEmbed(embedCreateSpec, discordEvents);
                 }))
             ).then();
     }
