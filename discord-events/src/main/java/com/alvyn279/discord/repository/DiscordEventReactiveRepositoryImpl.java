@@ -125,4 +125,42 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                 return Mono.error(throwable);
             });
     }
+
+    @Override
+    public Mono<List<DiscordEvent>> listDiscordEventCreatedByUser(ListDiscordEventsCommandArgs args) {
+        // We allow users to view their all-time events so they can
+        // clean up eventually the events they do not need.
+        // TODO: check input.guildId, input.userId
+
+        Map<String, String> expressionAttributesNames = ImmutableMap.of(
+            "#guildId", DiscordEvent.PARTITION_KEY,
+            "#createdBy", DiscordEvent.CREATED_BY_KEY
+        );
+
+        Map<String, AttributeValue> expressionAttributeValues = ImmutableMap.of(
+            ":guildIdValue", AttributeValue.builder().s(args.getGuildId()).build(),
+            ":createdByValue", AttributeValue.builder().s(args.getUserId()).build()
+        );
+
+        QueryRequest queryRequest = QueryRequest.builder()
+            .tableName(DISCORD_EVENTS_TABLE_NAME)
+            .keyConditionExpression("#guildId = :guildIdValue")
+            .filterExpression("#createdBy = :createdByValue")
+            .expressionAttributeNames(expressionAttributesNames)
+            .expressionAttributeValues(expressionAttributeValues)
+            .build();
+
+        return Mono.fromCompletionStage(client.query(queryRequest))
+            .flatMap(queryResponse -> {
+                log.info("Read events by guild and filtered by user from DDB table: {} items", queryResponse.count());
+                return Mono.just(queryResponse.items().stream()
+                    .map(DiscordEvent::fromDDBMap)
+                    .collect(Collectors.toList())
+                );
+            })
+            .onErrorResume(throwable -> {
+                log.error("Error reading events by guild and filtering by user from DDB", throwable);
+                return Mono.error(throwable);
+            });
+    }
 }

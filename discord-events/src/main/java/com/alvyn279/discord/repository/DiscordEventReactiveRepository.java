@@ -38,4 +38,13 @@ public interface DiscordEventReactiveRepository {
      * @return Mono<List<DiscordEvent>> events
      */
     Mono<List<DiscordEvent>> listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs args);
+
+    /**
+     * Fetches {@link DiscordEvent}s created by given user from a datastore in a
+     * reactive manner
+     *
+     * @param args {@link ListDiscordEventsCommandArgs} with `guildId`,`userId`
+     * @return Mono<List<DiscordEvent>> events
+     */
+    Mono<List<DiscordEvent>> listDiscordEventCreatedByUser(ListDiscordEventsCommandArgs args);
 }
