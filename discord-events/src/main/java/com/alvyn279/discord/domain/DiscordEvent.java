@@ -38,37 +38,37 @@ public class DiscordEvent {
      * The discord guild/server's {@link Snowflake} id
      */
     @NonNull
-    String guildId;
+    private final String guildId;
 
     /**
      * The Instant object at which the event will start.
      * In DDB, it is stored as a string with ISO-8601 representation.
      */
     @NonNull
-    Instant timestamp;
+    private final Instant timestamp;
 
     /**
      * The {@link Snowflake} id of the user that created the event
      */
     @NonNull
-    String createdBy;
+    private final String createdBy;
 
     /**
      * The event message's {@link Snowflake} id
      */
     @NonNull
-    String messageId;
+    private final String messageId;
 
     /**
      * The name/title of the event
      */
     @NonNull
-    String name;
+    private final String name;
 
     /**
      * The description for the event
      */
-    String description;
+    private final String description;
 
     @Builder
     @Data
@@ -76,10 +76,10 @@ public class DiscordEvent {
         private static final String DDB_COMPOSITE_KEY_SEPARATOR = "#";
 
         @NonNull
-        Instant datetime;
+        private final Instant datetime;
 
         @NonNull
-        String createdBy;
+        private final String createdBy;
 
         /**
          * Builds the datetime#createdBy sort key value to uniquely identify this

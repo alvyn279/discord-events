@@ -15,11 +15,11 @@ import java.util.List;
 @Builder
 public class DiscordCommandContext {
     @NonNull
-    List<String> tokens;
+    private final List<String> tokens;
 
     @NonNull
-    MessageCreateEvent messageCreateEvent;
+    private final MessageCreateEvent messageCreateEvent;
 
     @NonNull
-    Guild guild;
+    private final Guild guild;
 }

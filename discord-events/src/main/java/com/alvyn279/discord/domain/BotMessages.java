@@ -118,7 +118,7 @@ public class BotMessages {
 
     /**
      * Builder class to obtain a differently formatted field
-     * encapsulating {@DiscordEvent} information on a Discord
+     * encapsulating {@link DiscordEvent} information on a Discord
      * embed.
      */
     @Data
@@ -126,11 +126,11 @@ public class BotMessages {
     public static class DiscordEventSummaryFieldBuilder {
 
         @NonNull
-        private EmbedCreateSpec embedCreateSpec;
+        private final EmbedCreateSpec embedCreateSpec;
         @NonNull
-        private DiscordEvent discordEvent;
+        private final DiscordEvent discordEvent;
         @NonNull
-        private Integer count;
+        private final Integer count;
 
         @Builder.Default
         private String title = "";

@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ChannelUser {
-    String name;
-    String role;
+    private final String name;
+    private final String role;
 }
