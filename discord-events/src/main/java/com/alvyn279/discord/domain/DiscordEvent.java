@@ -17,7 +17,7 @@ import java.util.Map;
  * <p>
  * DynamoDB:
  * PK: `{guildID}`
- * SK: `{str(timestamp)#{createdBy}}`
+ * SK: `{timestamp}#{createdBy}`
  */
 @Builder
 @Data
