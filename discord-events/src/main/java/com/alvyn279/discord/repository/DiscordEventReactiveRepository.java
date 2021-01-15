@@ -1,7 +1,6 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
-import com.alvyn279.discord.domain.ListDiscordEventsCommandArgs;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

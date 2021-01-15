@@ -1,7 +1,6 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
-import com.alvyn279.discord.domain.ListDiscordEventsCommandArgs;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;

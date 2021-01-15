@@ -2,7 +2,7 @@ package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
-import com.alvyn279.discord.domain.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.inject.Inject;
 import discord4j.rest.util.Color;

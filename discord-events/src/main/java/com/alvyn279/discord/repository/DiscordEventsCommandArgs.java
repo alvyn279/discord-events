@@ -1,4 +1,4 @@
-package com.alvyn279.discord.domain;
+package com.alvyn279.discord.repository;
 
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
