@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class ListDiscordEventsForCurrentUserStrategy implements ListDiscordEventsStrategy {
 
-    private static final String EMBED_TITLE = "Your Events";
+    private static final String EMBED_TITLE_FORMAT_STR = "%s's Events";
     private final static String EMBED_DESCRIPTION = "Here are the events you created:";
 
     private final DiscordEventReactiveRepository discordEventReactiveRepository;
@@ -43,7 +43,11 @@ public class ListDiscordEventsForCurrentUserStrategy implements ListDiscordEvent
                 .flatMap(discordEvents -> context.getMessageCreateEvent().getMessage().getChannel()
                     .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec -> {
                         embedCreateSpec
-                            .setTitle(EMBED_TITLE)
+                            .setTitle(String.format(
+                                EMBED_TITLE_FORMAT_STR,
+                                optionalUser.orElseThrow().getUsername()
+                            ))
+                            .setThumbnail(optionalUser.orElseThrow().getAvatarUrl())
                             .setDescription(EMBED_DESCRIPTION)
                             .setColor(Color.DARK_GOLDENROD)
                             .setTimestamp(Instant.now());
