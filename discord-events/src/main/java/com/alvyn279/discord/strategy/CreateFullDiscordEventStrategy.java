@@ -1,6 +1,5 @@
 package com.alvyn279.discord.strategy;
 
-import com.alvyn279.discord.DiscordEventsBot;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
@@ -21,6 +20,8 @@ import java.util.List;
  */
 public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrategy {
 
+    public static final String DEFAULT_CREATOR = "BOT";
+
     private final DiscordEventReactiveRepository discordEventReactiveRepository;
 
     @Inject
@@ -39,7 +40,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
             .guildId(guild.getId().asString())
             .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
             .createdBy(msg.getAuthor().isPresent() ?
-                msg.getAuthor().get().getId().asString() : DiscordEventsBot.BOT)
+                msg.getAuthor().get().getId().asString() : DEFAULT_CREATOR)
             .messageId(msg.getId().asString())
             .name(tokens.get(1))
             .description(tokens.get(4))

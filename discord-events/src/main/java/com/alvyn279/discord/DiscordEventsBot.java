@@ -31,8 +31,6 @@ import java.util.Map;
 @Slf4j
 public class DiscordEventsBot {
 
-    public static final String BOT = "BOT";
-
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
@@ -42,10 +40,15 @@ public class DiscordEventsBot {
     private static final String DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS = "my-events";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
-    private static final Map<String, CommandReaction> commands = new HashMap<>();
+    private static final Map<String, CommandReaction> commands;
+    private static final Injector injector;
 
     static {
-        final Injector injector = Guice.createInjector(new RootModule());
+        // Instantiate resource and handler providers
+        injector = Guice.createInjector(new RootModule());
+        commands = new HashMap<>();
+
+        // Instantiate strategies
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
         final DeleteDiscordEventsStrategy deleteDiscordEventsStrategy = injector.getInstance(
@@ -56,6 +59,7 @@ public class DiscordEventsBot {
         );
         final HelpStrategy helpStrategy = new HelpStrategy();
 
+        // Distribute handler strategies
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
             event.getMessage().getChannel()
                 .flatMap(messageChannel -> messageChannel.createEmbed(
