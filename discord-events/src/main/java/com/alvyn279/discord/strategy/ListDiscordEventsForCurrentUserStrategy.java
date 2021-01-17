@@ -60,6 +60,7 @@ public class ListDiscordEventsForCurrentUserStrategy implements ListDiscordEvent
                                 .count(eventCounter.getAndIncrement())
                                 .build()
                                 .withNumeratedTitle()
+                                .withDescriptionHeadlineEventName()
                                 .withEntityAndDeleteCodeDescription()
                                 .buildField()
                         );

@@ -2,6 +2,7 @@ package com.alvyn279.discord.domain;
 
 import com.alvyn279.discord.utils.DateUtils;
 import com.google.common.collect.ImmutableList;
+import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.NonNull;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,38 +20,41 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BotMessages {
 
-    public static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
-    public static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
+    private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
+    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
+    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
         "You deleted the event called \"%s\" happening on %s.";
-    public static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
-    public static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
+    private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
+    private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
         "You cannot delete \"%s\" because you are not the one that created it.";
-    public static final String DISCORD_EVENTS_HELP_TITLE = "discord-events Help";
-    public static final String DISCORD_EVENTS_THUMBNAIL_LINK =
+    private static final String DISCORD_EVENTS_HELP_TITLE = "discord-events Help";
+    private static final String DISCORD_EVENTS_THUMBNAIL_LINK =
         "https://cdn.betterttv.net/emote/57b377aae42b335143d48993/3x";
-    public static final String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
-    public static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
+    private static final String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
+    private static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
         " commands correctly.";
-    public static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
-    public static final String HELP_SECTION_CREATE = "Create event";
-    public static final String HELP_SECTION_CREATE_INFO =
+    private static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
+    private static final String HELP_SECTION_CREATE = "Create event";
+    private static final String HELP_SECTION_CREATE_INFO =
         "`!create-event [title:str] [date:date] [time:time] [description:str]`";
-    public static final String HELP_SECTION_DELETE = "Delete event";
-    public static final String HELP_SECTION_DELETE_INFO =
+    private static final String HELP_SECTION_DELETE = "Delete event";
+    private static final String HELP_SECTION_DELETE_INFO =
         "`!delete-events [deleteCode:str]`";
-    public static final String HELP_SECTION_FORMATS = "Formats";
-    public static final String HELP_SECTION_FORMATS_INFO =
+    private static final String HELP_SECTION_FORMATS = "Formats";
+    private static final String HELP_SECTION_FORMATS_INFO =
         "`[date]:  MM/DD/YYYY (ex: 01/16/2021, 2/5/2021)`\n" +
             "`[time]:  hh[0-23]:mm[0-59] (ex: 19:30, 2:30, 14:30)`\n" +
             "`[str]:   \"some text\"`";
-    public static final String HELP_SECTION_LIST = "Listing events";
-    public static final String HELP_SECTION_LIST_INFO =
+    private static final String HELP_SECTION_LIST = "Listing events";
+    private static final String HELP_SECTION_LIST_INFO =
         "`!my-events`\n" +
             "`!list-events`\n" +
             "`!list-events [upcoming:num]`\n" +
             "`!list-events [on:date]`\n" +
             "`!list-events [from:date] [to:date]`";
-    public static List<SectionTuple> HELP_SECTION_TUPLE_LIST;
+    private static final String UNKNOWN_USER = "Unknown user";
+
+    private static final List<SectionTuple> HELP_SECTION_TUPLE_LIST;
 
     @Builder
     @Data
@@ -74,7 +79,9 @@ public class BotMessages {
      * @param embedCreateSpec Embed creation spec object that can be modified
      * @param discordEvents   List of discord events
      */
-    public static void attachDiscordEventsListToEmbed(EmbedCreateSpec embedCreateSpec, List<DiscordEvent> discordEvents) {
+    public static void attachDiscordEventsListToEmbed(EmbedCreateSpec embedCreateSpec,
+                                                      List<DiscordEvent> discordEvents,
+                                                      Map<String, User> usernamesMap) {
         AtomicInteger eventCounter = new AtomicInteger(1);
         discordEvents.forEach(discordEvent ->
             BotMessages.DiscordEventSummaryFieldBuilder.builder()
@@ -83,6 +90,11 @@ public class BotMessages {
                 .count(eventCounter.getAndIncrement())
                 .build()
                 .withNumeratedTitle()
+                .withDescriptionHeadlineEventNameAndCreatedBy(
+                    usernamesMap.containsKey(discordEvent.getCreatedBy()) ?
+                        usernamesMap.get(discordEvent.getCreatedBy()).getUsername() :
+                        UNKNOWN_USER
+                )
                 .withEntityDescription()
                 .buildField()
         );
@@ -90,8 +102,9 @@ public class BotMessages {
 
     /**
      * Confirmation message for deletion of a discord event
+     *
      * @param embedCreateSpec embed to be modified
-     * @param discordEvent discord event that was just deleted
+     * @param discordEvent    discord event that was just deleted
      */
     public static void attachDeleteConfirmationToEmbed(EmbedCreateSpec embedCreateSpec, DiscordEvent discordEvent) {
         embedCreateSpec
@@ -112,8 +125,9 @@ public class BotMessages {
     /**
      * Confirmation message for access denied during
      * deletion of a discord event
+     *
      * @param embedCreateSpec embed to be modified
-     * @param discordEvent discord event that was attempted to be deleted
+     * @param discordEvent    discord event that was attempted to be deleted
      */
     public static void attachDeleteAccessDeniedToEmbed(EmbedCreateSpec embedCreateSpec, DiscordEvent discordEvent) {
         embedCreateSpec
@@ -190,6 +204,8 @@ public class BotMessages {
         @Builder.Default
         private String description = "";
         @Builder.Default
+        private String descriptionHeadline = "";
+        @Builder.Default
         private Boolean inline = false;
 
         /**
@@ -200,8 +216,6 @@ public class BotMessages {
          */
         private StringBuilder commonDescription() {
             return new StringBuilder()
-                .append(discordEvent.getName())
-                .append("\n")
                 .append(discordEvent.getDescription())
                 .append("\n");
         }
@@ -219,6 +233,35 @@ public class BotMessages {
                 .append("] ")
                 .append(DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp()))
                 .toString();
+            return this;
+        }
+
+        /**
+         * Sets a description headline with the name of the event
+         *
+         * @return builder
+         */
+        public DiscordEventSummaryFieldBuilder withDescriptionHeadlineEventName() {
+            this.descriptionHeadline = String.format(
+                "**%s**\n",
+                discordEvent.getName()
+            );
+            return this;
+        }
+
+        /**
+         * Sets a description headline with the name of the event plus
+         * its creator.
+         *
+         * @param username discord context user username
+         * @return builder
+         */
+        public DiscordEventSummaryFieldBuilder withDescriptionHeadlineEventNameAndCreatedBy(String username) {
+            this.descriptionHeadline = String.format(
+                DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR,
+                discordEvent.getName(),
+                username
+            );
             return this;
         }
 
@@ -263,7 +306,7 @@ public class BotMessages {
         public void buildField() {
             embedCreateSpec.addField(
                 this.title,
-                this.description,
+                String.format("%s%s", this.descriptionHeadline, this.description),
                 this.inline
             );
         }

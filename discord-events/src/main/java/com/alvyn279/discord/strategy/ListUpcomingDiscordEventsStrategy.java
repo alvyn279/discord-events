@@ -2,6 +2,7 @@ package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
+import com.alvyn279.discord.domain.GuildUtils;
 import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.inject.Inject;
@@ -36,15 +37,16 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
 
         return discordEventReactiveRepository.listDiscordEventsByUpcoming(commandArgs)
             .flatMap(discordEvents -> context.getMessageCreateEvent().getMessage().getChannel()
-                .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec -> {
-                    embedCreateSpec
-                        .setTitle(EMBED_TITLE)
-                        .setDescription(EMBED_DESCRIPTION)
-                        .setColor(Color.HOKI)
-                        .setTimestamp(Instant.now());
+                .flatMap(messageChannel -> GuildUtils.retrieveGuildUsers(context.getGuild())
+                    .flatMap(usersMap -> messageChannel.createEmbed(embedCreateSpec -> {
+                        embedCreateSpec
+                            .setTitle(EMBED_TITLE)
+                            .setDescription(EMBED_DESCRIPTION)
+                            .setColor(Color.HOKI)
+                            .setTimestamp(Instant.now());
 
-                    BotMessages.attachDiscordEventsListToEmbed(embedCreateSpec, discordEvents);
-                }))
+                        BotMessages.attachDiscordEventsListToEmbed(embedCreateSpec, discordEvents, usersMap);
+                    })))
             ).then();
     }
 }
