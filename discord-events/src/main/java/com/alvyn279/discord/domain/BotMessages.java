@@ -45,7 +45,7 @@ public class BotMessages {
         "`[date]:  MM/DD/YYYY (ex: 01/16/2021, 2/5/2021)`\n" +
             "`[time]:  hh[0-23]:mm[0-59] (ex: 19:30, 2:30, 14:30)`\n" +
             "`[str]:   \"some text\"`\n" +
-            "`[]?`:    optional input`";
+            "`[]?:     optional input`";
     private static final String HELP_SECTION_LIST = "Listing events";
     private static final String HELP_SECTION_LIST_INFO =
         "`!my-events`\n" +
