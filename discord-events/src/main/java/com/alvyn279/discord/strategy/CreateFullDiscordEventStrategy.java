@@ -35,6 +35,10 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
         Guild guild = context.getGuild();
         List<String> tokens = context.getTokens();
         Message msg = event.getMessage();
+        // Support optional descriptions. We cannot adopt a null
+        // attribute model for {@link DiscordEvent} because Discord
+        // does support setting null attributes for embeds.
+        String desc = (tokens.size() == 5 ? tokens.get(4) : "");
 
         DiscordEvent discordEvent = DiscordEvent.builder()
             .guildId(guild.getId().asString())
@@ -43,7 +47,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
                 msg.getAuthor().get().getId().asString() : DEFAULT_CREATOR)
             .messageId(msg.getId().asString())
             .name(tokens.get(1))
-            .description(tokens.get(4))
+            .description(desc)
             .build();
 
         //TODO: check existence before writing

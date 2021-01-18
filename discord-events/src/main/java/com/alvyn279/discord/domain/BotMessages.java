@@ -36,7 +36,7 @@ public class BotMessages {
     private static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
     private static final String HELP_SECTION_CREATE = "Create event";
     private static final String HELP_SECTION_CREATE_INFO =
-        "`!create-event [title:str] [date:date] [time:time] [description:str]`";
+        "`!create-event [title:str] [date:date] [time:time] [description:str]?`";
     private static final String HELP_SECTION_DELETE = "Delete event";
     private static final String HELP_SECTION_DELETE_INFO =
         "`!delete-events [deleteCode:str]`";
@@ -44,7 +44,8 @@ public class BotMessages {
     private static final String HELP_SECTION_FORMATS_INFO =
         "`[date]:  MM/DD/YYYY (ex: 01/16/2021, 2/5/2021)`\n" +
             "`[time]:  hh[0-23]:mm[0-59] (ex: 19:30, 2:30, 14:30)`\n" +
-            "`[str]:   \"some text\"`";
+            "`[str]:   \"some text\"`\n" +
+            "`[]?`:    optional input`";
     private static final String HELP_SECTION_LIST = "Listing events";
     private static final String HELP_SECTION_LIST_INFO =
         "`!my-events`\n" +
@@ -215,6 +216,9 @@ public class BotMessages {
          * @return builder
          */
         private StringBuilder commonDescription() {
+            if (discordEvent.getDescription().equals("")) {
+                return new StringBuilder();
+            }
             return new StringBuilder()
                 .append(discordEvent.getDescription())
                 .append("\n");
