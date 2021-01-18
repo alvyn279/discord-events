@@ -235,7 +235,10 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                 }
 
                 log.info("Found event by message ID from DDB table");
-                DiscordEvent discordEvent = DiscordEvent.fromDDBMap(queryResponse.items().get(0));
+                DiscordEvent discordEvent = queryResponse.items().stream()
+                    .map(DiscordEvent::fromDDBMap)
+                    .findFirst()
+                    .orElseThrow();
 
                 if (!discordEvent.getCreatedBy().equals(args.getUserId())) {
                     return Mono.error(new AccessDeniedException(String.format(
