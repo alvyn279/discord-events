@@ -21,6 +21,7 @@ public class ListDiscordEventsDefaultStrategy extends ListUpcomingDiscordEventsS
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
+        // Kinda hacky
         context.getTokens().add(Integer.toString(DEFAULT_UPCOMING_LIMIT));
         return super.execute(context);
     }

@@ -18,11 +18,12 @@ import java.util.concurrent.TimeUnit;
 public class EventsCheckerScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
-    private Future<?> eventCheckerThread = null;
+    private Future<?> eventCheckerThread;
 
     @Inject
     public EventsCheckerScheduler(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
+        this.eventCheckerThread = null;
     }
 
     /**

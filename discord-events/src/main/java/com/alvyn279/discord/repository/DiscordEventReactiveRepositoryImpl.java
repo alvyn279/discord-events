@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.utils.ImmutableMap;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByUpcoming(ListDiscordEventsCommandArgs args) {
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithLimit(ListDiscordEventsCommandArgs args) {
         // TODO: check input.guildId, input.currentDate, input.upcomingLimit
 
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
@@ -98,6 +99,18 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                 log.error("Error reading upcoming events from DDB", throwable);
                 return Mono.error(throwable);
             });
+    }
+
+    @Override
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandArgs args) {
+        Instant startDateTime = args.getCurrentDateTime();
+        Instant endDateTime = args.getCurrentDateTime().plus(args.getUpcomingTimeLimit());
+
+        return listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs.builder()
+            .startDateTime(startDateTime)
+            .endDateTime(endDateTime)
+            .guildId(args.getGuildId())
+            .build());
     }
 
     @Override
