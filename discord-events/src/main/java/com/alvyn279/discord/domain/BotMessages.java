@@ -34,8 +34,8 @@ public class BotMessages {
     private static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
         " commands correctly.";
     private static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
-    private static final String EVENT_REMINDERS_ALREADY_ON = "Discord events reminders are already ON.";
-    private static final String EVENT_REMINDERS_ALREADY_OFF = "Discord events reminders are already OFF.";
+    private static final String EVENT_REMINDERS_ALREADY_ON = "Event reminders are already on.";
+    private static final String EVENT_REMINDERS_ALREADY_OFF = "Event reminders are already off.";
     private static final String EVENT_REMINDERS_TURNED_OFF = "You will not be reminded of upcoming events anymore.";
     private static final String EVENT_REMINDERS_TURNED_OFF_TITLE = "Event reminders: OFF";
     private static final String EVENT_REMINDERS_TURNED_ON = "You will be reminded on this channel about any" +
@@ -60,6 +60,8 @@ public class BotMessages {
             "`!list-events [upcoming:num]`\n" +
             "`!list-events [on:date]`\n" +
             "`!list-events [from:date] [to:date]`";
+    private static final String HELP_SECTION_REMINDERS = "Event reminders";
+    private static final String HELP_SECTION_REMINDERS_INFO = "`!remind-events [on|off:str]\n`";
     private static final String UNKNOWN_USER = "Unknown user";
     private static final String WARNING_TITLE = "Warning";
 
@@ -77,6 +79,7 @@ public class BotMessages {
             SectionTuple.builder().section(HELP_SECTION_CREATE).sectionInfo(HELP_SECTION_CREATE_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_DELETE).sectionInfo(HELP_SECTION_DELETE_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_LIST).sectionInfo(HELP_SECTION_LIST_INFO).build(),
+            SectionTuple.builder().section(HELP_SECTION_REMINDERS).sectionInfo(HELP_SECTION_REMINDERS_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_FORMATS).sectionInfo(HELP_SECTION_FORMATS_INFO).build()
         );
     }
