@@ -34,6 +34,13 @@ public class BotMessages {
     private static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
         " commands correctly.";
     private static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
+    private static final String EVENT_REMINDERS_ALREADY_ON = "Discord events reminders are already ON.";
+    private static final String EVENT_REMINDERS_ALREADY_OFF = "Discord events reminders are already OFF.";
+    private static final String EVENT_REMINDERS_TURNED_OFF = "You will not be reminded of upcoming events anymore.";
+    private static final String EVENT_REMINDERS_TURNED_OFF_TITLE = "Event reminders: OFF";
+    private static final String EVENT_REMINDERS_TURNED_ON = "You will be reminded on this channel about any" +
+        " event starting soon.";
+    private static final String EVENT_REMINDERS_TURNED_ON_TITLE = "Event reminders: ON";
     private static final String HELP_SECTION_CREATE = "Create event";
     private static final String HELP_SECTION_CREATE_INFO =
         "`!create-event [title:str] [date:date] [time:time] [description:str]?`";
@@ -54,6 +61,7 @@ public class BotMessages {
             "`!list-events [on:date]`\n" +
             "`!list-events [from:date] [to:date]`";
     private static final String UNKNOWN_USER = "Unknown user";
+    private static final String WARNING_TITLE = "Warning";
 
     private static final List<SectionTuple> HELP_SECTION_TUPLE_LIST;
 
@@ -143,6 +151,70 @@ public class BotMessages {
             ))
             .setColor(Color.RED)
             .setTimestamp(Instant.now());
+    }
+
+    /**
+     * Message to inform that the reminders for events are already turned on
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    public static void eventRemindersAlreadyOn(EmbedCreateSpec embedCreateSpec) {
+        embedCreateSpec
+            .setColor(Color.ORANGE)
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.WARNING,
+                BotMessages.WARNING_TITLE
+            ))
+            .setDescription(BotMessages.EVENT_REMINDERS_ALREADY_ON);
+    }
+
+    /**
+     * Message to inform that the reminders for events are already turned off.
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    public static void eventRemindersAlreadyOff(EmbedCreateSpec embedCreateSpec) {
+        embedCreateSpec
+            .setColor(Color.ORANGE)
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.WARNING,
+                BotMessages.WARNING_TITLE
+            ))
+            .setDescription(BotMessages.EVENT_REMINDERS_ALREADY_OFF);
+    }
+
+    /**
+     * Message to inform that the reminders for events were turned on.
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    public static void eventRemindersTurnedOn(EmbedCreateSpec embedCreateSpec) {
+        embedCreateSpec
+            .setColor(Color.GREEN)
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.NOTIFS_ON,
+                BotMessages.EVENT_REMINDERS_TURNED_ON_TITLE
+            ))
+            .setDescription(BotMessages.EVENT_REMINDERS_TURNED_ON);
+    }
+
+    /**
+     * Message to inform that the reminders for events were turned off.
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    public static void eventRemindersTurnedOff(EmbedCreateSpec embedCreateSpec) {
+        embedCreateSpec
+            .setColor(Color.GREEN)
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.NOTIFS_OFF,
+                BotMessages.EVENT_REMINDERS_TURNED_OFF_TITLE
+            ))
+            .setDescription(BotMessages.EVENT_REMINDERS_TURNED_OFF);
     }
 
     /**

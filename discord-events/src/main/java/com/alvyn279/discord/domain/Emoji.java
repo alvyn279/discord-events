@@ -53,7 +53,9 @@ public enum Emoji {
 
     // discord-events
     BOOK("book"),
-    GARBAGE("wastebasket");
+    GARBAGE("wastebasket"),
+    NOTIFS_ON("bell"),
+    NOTIFS_OFF("no_bell");
 
     private final String discordNotation;
 

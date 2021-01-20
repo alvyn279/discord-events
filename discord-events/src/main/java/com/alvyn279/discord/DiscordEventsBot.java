@@ -1,5 +1,8 @@
 package com.alvyn279.discord;
 
+import com.alvyn279.discord.async.EventReminderServiceStrategy;
+import com.alvyn279.discord.async.StartEventReminderServiceStrategy;
+import com.alvyn279.discord.async.StopEventReminderServiceStrategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.domain.DiscordCommandContext;
@@ -38,6 +41,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_EVENTS_COMMAND_DELETE_EVENT = "delete-events";
     private static final String DISCORD_EVENTS_COMMAND_LIST_EVENTS = "list-events";
     private static final String DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS = "my-events";
+    private static final String DISCORD_EVENTS_COMMAND_REMIND = "remind-events";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
     private static final Map<String, CommandReaction> commands;
@@ -140,6 +144,32 @@ public class DiscordEventsBot {
         );
 
         commands.put(DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS, listPersonalDiscordEventsStrategy::execute);
+
+        commands.put(DISCORD_EVENTS_COMMAND_REMIND, event -> event.getGuild()
+            .flatMap(guild -> Mono.just(event.getMessage().getContent())
+                .flatMap(s -> {
+                    // COMMAND FORMAT: !remind-events [on|off:str]
+                    // TODO: help, status
+                    List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
+                    String qualifier = tokens.get(1);
+                    EventReminderServiceStrategy eventReminderServiceStrategy;
+
+                    if (qualifier.equals("on")) {
+                        eventReminderServiceStrategy = injector.getInstance(StartEventReminderServiceStrategy.class);
+                    } else if (qualifier.equals("off")) {
+                        eventReminderServiceStrategy = injector.getInstance(StopEventReminderServiceStrategy.class);
+                    } else {
+                        return Mono.error(new Exception("Invalid remind-events qualifier"));
+                    }
+
+                    return eventReminderServiceStrategy.execute(DiscordCommandContext.builder()
+                        .tokens(tokens)
+                        .guild(guild)
+                        .messageCreateEvent(event)
+                        .build()
+                    );
+                })
+            ));
     }
 
     public static void main(String[] args) {

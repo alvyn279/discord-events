@@ -10,6 +10,9 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * Main provider module for Guice. It resolves instances of:
  * - Async clients
@@ -45,5 +48,11 @@ public class RootModule extends AbstractModule {
         return DiscordEventReactiveRepositoryImpl.builder()
             .client(client)
             .build();
+    }
+
+    @Provides
+    @Singleton
+    static ScheduledExecutorService provideScheduledExecutorService() {
+        return Executors.newScheduledThreadPool(1);
     }
 }
