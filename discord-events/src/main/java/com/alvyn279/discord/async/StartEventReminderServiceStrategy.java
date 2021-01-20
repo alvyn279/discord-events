@@ -37,6 +37,7 @@ public class StartEventReminderServiceStrategy implements EventReminderServiceSt
 
                 eventsCheckerScheduler.scheduleAtFixedRate(EventCheckerTask.builder()
                         .messageChannel(messageChannel)
+                        .guild(context.getGuild())
                         .repository(discordEventReactiveRepository)
                         .build(),
                     EVENT_CHECK_INITIAL_DELAY_IN_SECONDS, EVENT_CHECK_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);

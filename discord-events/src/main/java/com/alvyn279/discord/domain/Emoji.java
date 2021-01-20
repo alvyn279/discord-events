@@ -52,6 +52,7 @@ public enum Emoji {
     BROKEN_HEART("broken_heart"),
 
     // discord-events
+    ALARM_CLOCK("alarm_clock"),
     BOOK("book"),
     GARBAGE("wastebasket"),
     NOTIFS_ON("bell"),

@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BotMessages {
 
+    public static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
+
     private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
     private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
     private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
@@ -33,7 +35,6 @@ public class BotMessages {
     private static final String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
     private static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
         " commands correctly.";
-    private static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
     private static final String EVENT_REMINDERS_ALREADY_ON = "Event reminders are already on.";
     private static final String EVENT_REMINDERS_ALREADY_OFF = "Event reminders are already off.";
     private static final String EVENT_REMINDERS_TURNED_OFF = "You will not be reminded of upcoming events anymore.";
