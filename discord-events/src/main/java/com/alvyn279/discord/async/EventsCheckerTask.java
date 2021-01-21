@@ -10,6 +10,7 @@ import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.util.Color;
 import lombok.Builder;
+import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -32,8 +33,13 @@ public class EventsCheckerTask implements Runnable {
         " these events are happening soon:";
     private static final Integer EVENT_CHECK_TIME_DELTA_IN_MINUTES = 15;
 
+    @NonNull
     private final DiscordEventReactiveRepository repository;
+
+    @NonNull
     private final MessageChannel messageChannel;
+
+    @NonNull
     private final Guild guild;
 
     // We keep an in-memory cache of string IDs of {@link DiscordEvent}s
@@ -45,7 +51,22 @@ public class EventsCheckerTask implements Runnable {
         notifiedDiscordEvents = new HashSet<>();
     }
 
+    /**
+     * Gets the message channel that initiated the !remind-events
+     * command. This is considered to be the subscribed channel.
+     *
+     * @return MessageChannel
+     */
+    public MessageChannel getSubscribedChannel() {
+        return this.messageChannel;
+    }
+
     public void run() {
+        // Reads the DDB at each minute to find events that are occurring within
+        // the next 15 minutes. The task filters out the events that have already
+        // been notified as per its own in-memory cache, then sends a message to
+        // the subscribed channel.
+
         repository.listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandArgs.builder()
             .guildId(guild.getId().asString())
             .currentDateTime(Instant.now())

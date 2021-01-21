@@ -25,7 +25,7 @@ public class StopEventReminderServiceStrategy implements EventReminderServiceStr
         return context.getMessageCreateEvent().getMessage().getChannel()
             .flatMap(messageChannel -> {
                 if (!eventsCheckerScheduler.isSafeToStop()) {
-                    return messageChannel.createEmbed(BotMessages::eventRemindersAlreadyOff);
+                    return messageChannel.createEmbed(BotMessages::eventRemindersOff);
                 }
 
                 eventsCheckerScheduler.stopEventChecker();

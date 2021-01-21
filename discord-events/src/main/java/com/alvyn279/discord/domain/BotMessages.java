@@ -35,8 +35,11 @@ public class BotMessages {
     private static final String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
     private static final String ERROR_STATE_GENERIC_DESCRIPTION = "Use `!events-help` command to make sure you are using" +
         " commands correctly.";
-    private static final String EVENT_REMINDERS_ALREADY_ON = "Event reminders are already on.";
-    private static final String EVENT_REMINDERS_ALREADY_OFF = "Event reminders are already off.";
+    private static final String EVENT_REMINDERS_ON = "Event reminders are on.";
+    private static final String EVENT_REMINDERS_OFF = "Event reminders are off.";
+    private static final String EVENT_REMINDERS_STATUS = "Event Reminders Status";
+    private static final String EVENT_REMINDERS_STATUS_DESCRIPTION_STR_FORMAT = "Event reminders are currently " +
+        "turned on in text channel: #**%s**.";
     private static final String EVENT_REMINDERS_TURNED_OFF = "You will not be reminded of upcoming events anymore.";
     private static final String EVENT_REMINDERS_TURNED_OFF_TITLE = "Event reminders: OFF";
     private static final String EVENT_REMINDERS_TURNED_ON = "You will be reminded on this channel about any" +
@@ -62,9 +65,8 @@ public class BotMessages {
             "`!list-events [on:date]`\n" +
             "`!list-events [from:date] [to:date]`";
     private static final String HELP_SECTION_REMINDERS = "Event reminders";
-    private static final String HELP_SECTION_REMINDERS_INFO = "`!remind-events [on|off:str]\n`";
+    private static final String HELP_SECTION_REMINDERS_INFO = "`!remind-events [on|off:str]?\n`";
     private static final String UNKNOWN_USER = "Unknown user";
-    private static final String WARNING_TITLE = "Warning";
 
     private static final List<SectionTuple> HELP_SECTION_TUPLE_LIST;
 
@@ -158,35 +160,50 @@ public class BotMessages {
     }
 
     /**
-     * Message to inform that the reminders for events are already turned on
+     * Message to inform that the reminders for events are turned on
      *
      * @param embedCreateSpec embed to be modified
      */
-    public static void eventRemindersAlreadyOn(EmbedCreateSpec embedCreateSpec) {
+    public static void eventRemindersOn(EmbedCreateSpec embedCreateSpec) {
         embedCreateSpec
             .setColor(Color.ORANGE)
             .setTitle(String.format(
                 EMOJI_AND_TITLE_FORMAT_STR,
-                Emoji.WARNING,
-                BotMessages.WARNING_TITLE
+                Emoji.NOTIFS_ON,
+                BotMessages.EVENT_REMINDERS_STATUS
             ))
-            .setDescription(BotMessages.EVENT_REMINDERS_ALREADY_ON);
+            .setDescription(BotMessages.EVENT_REMINDERS_ON);
     }
 
     /**
-     * Message to inform that the reminders for events are already turned off.
+     * Message to inform that the reminders for events are turned off.
      *
      * @param embedCreateSpec embed to be modified
      */
-    public static void eventRemindersAlreadyOff(EmbedCreateSpec embedCreateSpec) {
+    public static void eventRemindersOff(EmbedCreateSpec embedCreateSpec) {
         embedCreateSpec
             .setColor(Color.ORANGE)
             .setTitle(String.format(
                 EMOJI_AND_TITLE_FORMAT_STR,
-                Emoji.WARNING,
-                BotMessages.WARNING_TITLE
+                Emoji.NOTIFS_OFF,
+                BotMessages.EVENT_REMINDERS_STATUS
             ))
-            .setDescription(BotMessages.EVENT_REMINDERS_ALREADY_OFF);
+            .setDescription(BotMessages.EVENT_REMINDERS_OFF);
+    }
+
+    /**
+     * Message to inform of the text channel in which the event
+     * reminders are turned on.
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    public static void eventRemindersOnStatus(EmbedCreateSpec embedCreateSpec, String channelName) {
+        BotMessages.eventRemindersOn(embedCreateSpec);
+        embedCreateSpec
+            .setDescription(String.format(
+                EVENT_REMINDERS_STATUS_DESCRIPTION_STR_FORMAT,
+                channelName
+            ));
     }
 
     /**

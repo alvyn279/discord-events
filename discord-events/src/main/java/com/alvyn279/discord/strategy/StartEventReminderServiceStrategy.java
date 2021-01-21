@@ -34,7 +34,7 @@ public class StartEventReminderServiceStrategy implements EventReminderServiceSt
         return context.getMessageCreateEvent().getMessage().getChannel()
             .flatMap(messageChannel -> {
                 if (!eventsCheckerScheduler.isSafeToStart()) {
-                    return messageChannel.createEmbed(BotMessages::eventRemindersAlreadyOn);
+                    return messageChannel.createEmbed(BotMessages::eventRemindersOn);
                 }
 
                 eventsCheckerScheduler.scheduleAtFixedRate(EventsCheckerTask.builder()

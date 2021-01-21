@@ -19,28 +19,22 @@ public class EventsCheckerScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
     private Future<?> eventCheckerThread;
+    private EventsCheckerTask currentTask;
 
     @Inject
     public EventsCheckerScheduler(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventCheckerThread = null;
+        this.currentTask = null;
     }
 
     /**
-     * Schedules the desired {@link Runnable} task at desired rate on the
-     * scheduler. It sets this.eventCheckerThread {@link Future} that can
-     * be used later to cancel the task.
+     * Returns the event checker task that was scheduled.
      *
-     * @param command      task definition
-     * @param initialDelay initial delay
-     * @param period       periodic rate
-     * @param unit         time unit
+     * @return EventsCheckerTask runnable task
      */
-    public void scheduleAtFixedRate(Runnable command,
-                                    long initialDelay,
-                                    long period,
-                                    TimeUnit unit) {
-        eventCheckerThread = scheduledExecutorService.scheduleAtFixedRate(command, initialDelay, period, unit);
+    public EventsCheckerTask getCurrentTask() {
+        return currentTask;
     }
 
     /**
@@ -62,9 +56,28 @@ public class EventsCheckerScheduler {
     }
 
     /**
+     * Schedules the desired {@link EventsCheckerTask} task at desired rate
+     * on the scheduler. It sets this.eventCheckerThread {@link Future} that
+     * can be used later to cancel the task.
+     *
+     * @param task      task definition
+     * @param initialDelay initial delay
+     * @param period       periodic rate
+     * @param unit         time unit
+     */
+    public void scheduleAtFixedRate(EventsCheckerTask task,
+                                    long initialDelay,
+                                    long period,
+                                    TimeUnit unit) {
+        eventCheckerThread = scheduledExecutorService.scheduleAtFixedRate(task, initialDelay, period, unit);
+        currentTask = task;
+    }
+
+    /**
      * Issues a cancel request for the {@link Future}.
      */
     public void stopEventChecker() {
         eventCheckerThread.cancel(true);
+        currentTask = null;
     }
 }

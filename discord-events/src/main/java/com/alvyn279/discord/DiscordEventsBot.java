@@ -160,6 +160,8 @@ public class DiscordEventsBot {
                         } else {
                             return Mono.error(new Exception("Invalid remind-events qualifier"));
                         }
+                    } else if (tokens.size() == 1) {
+                        eventReminderServiceStrategy = injector.getInstance(StatusEventReminderServiceStrategy.class);
                     } else {
                         return Mono.error(new Exception("Invalid remind-events arguments"));
                     }
