@@ -1,8 +1,8 @@
 package com.alvyn279.discord;
 
-import com.alvyn279.discord.async.EventReminderServiceStrategy;
-import com.alvyn279.discord.async.StartEventReminderServiceStrategy;
-import com.alvyn279.discord.async.StopEventReminderServiceStrategy;
+import com.alvyn279.discord.strategy.EventReminderServiceStrategy;
+import com.alvyn279.discord.strategy.StartEventReminderServiceStrategy;
+import com.alvyn279.discord.strategy.StopEventReminderServiceStrategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.domain.DiscordCommandContext;
@@ -149,7 +149,6 @@ public class DiscordEventsBot {
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
                     // COMMAND FORMAT: !remind-events [on|off:str]
-                    // TODO: status
                     List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
                     EventReminderServiceStrategy eventReminderServiceStrategy;
 

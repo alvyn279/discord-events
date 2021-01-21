@@ -1,4 +1,4 @@
-package com.alvyn279.discord.async;
+package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import reactor.core.publisher.Mono;
