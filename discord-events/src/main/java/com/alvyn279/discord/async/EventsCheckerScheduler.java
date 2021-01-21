@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Singleton scheduler that can schedule periodically-ran {@link EventCheckerTask}
+ * Singleton scheduler that can schedule periodically-ran {@link EventsCheckerTask}
  * on a thread different than the main one.
  * <p>
  * Being a singleton, stateless commands from the discord context can easily refer

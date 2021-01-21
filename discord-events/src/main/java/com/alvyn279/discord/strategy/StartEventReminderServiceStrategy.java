@@ -1,6 +1,6 @@
 package com.alvyn279.discord.strategy;
 
-import com.alvyn279.discord.async.EventCheckerTask;
+import com.alvyn279.discord.async.EventsCheckerTask;
 import com.alvyn279.discord.async.EventsCheckerScheduler;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Concrete strategy that starts a {@link EventCheckerTask} through the {@link EventsCheckerScheduler}
+ * Concrete strategy that starts a {@link EventsCheckerTask} through the {@link EventsCheckerScheduler}
  * based on different states of the latter.
  */
 public class StartEventReminderServiceStrategy implements EventReminderServiceStrategy {
@@ -37,7 +37,7 @@ public class StartEventReminderServiceStrategy implements EventReminderServiceSt
                     return messageChannel.createEmbed(BotMessages::eventRemindersAlreadyOn);
                 }
 
-                eventsCheckerScheduler.scheduleAtFixedRate(EventCheckerTask.builder()
+                eventsCheckerScheduler.scheduleAtFixedRate(EventsCheckerTask.builder()
                         .messageChannel(messageChannel)
                         .guild(context.getGuild())
                         .repository(discordEventReactiveRepository)

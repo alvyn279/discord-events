@@ -1,6 +1,6 @@
 package com.alvyn279.discord.strategy;
 
-import com.alvyn279.discord.async.EventCheckerTask;
+import com.alvyn279.discord.async.EventsCheckerTask;
 import com.alvyn279.discord.async.EventsCheckerScheduler;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import reactor.core.publisher.Mono;
 
 /**
- * Concrete strategy that attempts to cancel a {@link EventCheckerTask} through
+ * Concrete strategy that attempts to cancel a {@link EventsCheckerTask} through
  * the {@link EventsCheckerScheduler} based on different states of the latter.
  */
 public class StopEventReminderServiceStrategy implements EventReminderServiceStrategy {

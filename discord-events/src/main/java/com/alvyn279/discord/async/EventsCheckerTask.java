@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * context to notify the subscribed channel.
  */
 @Builder
-public class EventCheckerTask implements Runnable {
+public class EventsCheckerTask implements Runnable {
 
     private static final String REMINDER_TITLE = "Events Happening Soon!";
     // TODO: insert @here mention for notifs
