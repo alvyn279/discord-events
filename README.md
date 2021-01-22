@@ -22,6 +22,9 @@ Manage events (create, view, & delete) for multiple discord servers.
 ### Reminder feature
 Opt-in feature where a separate thread in the bot checks for events and notifies a channel 15 minutes before it occurs.
 
+## 🛠 Setup
+For each instance of the bot running on your servers, obtain a bot token for it on the Discord Developer portal ([example](https://www.toptal.com/chatbot/how-to-make-a-discord-bot)).
+
 ## 🤖 Running the bot locally
 
 1. Set env vars:
