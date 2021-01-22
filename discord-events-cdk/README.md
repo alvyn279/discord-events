@@ -1,14 +1,13 @@
-# Welcome to your CDK TypeScript project!
+# discord-events CDK
 
-This is a blank project for TypeScript development with CDK.
+AWS infrastructure for `discord-events`.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Usage
 
-## Useful commands
+ * `yarn run build`: compile typescript to js and synthesizes the CloudFormation template
+ * `yarn run cdk deploy`: deploy this stack to your default AWS account/region
+ * `yarn run cdk cdk diff`: compare deployed stack with current state
 
- * `yarn run build`   compile typescript to js
- * `yarn run watch`   watch for changes and compile
- * `yarn run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+## Notes
+
+Every deploy will reinstantiate a new image of the application on the instance through ECS.
