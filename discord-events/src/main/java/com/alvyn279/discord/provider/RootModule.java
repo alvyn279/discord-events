@@ -31,15 +31,15 @@ public class RootModule extends AbstractModule {
     @Singleton
     static Region provideRegion() {
         return Region.of(
-            EnvironmentUtils.getEnvVar(AWS_DEFAULT_REGION_KEY)
-        );
+            EnvironmentUtils.getEnvVar(AWS_DEFAULT_REGION_KEY));
     }
 
     @Provides
     static DynamoDbAsyncClient provideDynamoDbAsyncClient(Region region) {
         return DynamoDbAsyncClient.builder()
             .region(region)
-            .credentialsProvider(DefaultCredentialsProvider.builder().build())
+            .credentialsProvider(DefaultCredentialsProvider.builder()
+                .build())
             .build();
     }
 
