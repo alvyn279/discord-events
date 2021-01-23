@@ -33,16 +33,23 @@ public class StartEventReminderServiceStrategy implements EventReminderServiceSt
     public Mono<Void> execute(DiscordCommandContext context) {
         return context.getMessageCreateEvent().getMessage().getChannel()
             .flatMap(messageChannel -> {
-                if (!eventsCheckerScheduler.isSafeToStart()) {
+                String guildId = context.getGuild().getId().asString();
+
+                if (!eventsCheckerScheduler.isSafeToStart(guildId)) {
                     return messageChannel.createEmbed(BotMessages::eventRemindersOn);
                 }
 
-                eventsCheckerScheduler.scheduleAtFixedRate(EventsCheckerTask.builder()
+                eventsCheckerScheduler.scheduleAtFixedRate(
+                    guildId,
+                    EventsCheckerTask.builder()
                         .messageChannel(messageChannel)
                         .guild(context.getGuild())
                         .repository(discordEventReactiveRepository)
                         .build(),
-                    EVENT_CHECK_INITIAL_DELAY_IN_SECONDS, EVENT_CHECK_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+                    EVENT_CHECK_INITIAL_DELAY_IN_SECONDS,
+                    EVENT_CHECK_INTERVAL_IN_SECONDS,
+                    TimeUnit.SECONDS
+                );
 
                 return messageChannel.createEmbed(BotMessages::eventRemindersTurnedOn);
             })

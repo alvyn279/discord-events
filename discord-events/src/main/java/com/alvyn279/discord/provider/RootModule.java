@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class RootModule extends AbstractModule {
 
     private static final String AWS_DEFAULT_REGION_KEY = "AWS_DEFAULT_REGION";
+    private static final Integer EVENTS_REMINDER_ALLOCATED_THREADS = 5;
 
     @Override
     protected void configure() {
@@ -53,6 +54,7 @@ public class RootModule extends AbstractModule {
     @Provides
     @Singleton
     static ScheduledExecutorService provideScheduledExecutorService() {
-        return Executors.newScheduledThreadPool(1);
+        return Executors
+            .newScheduledThreadPool(EVENTS_REMINDER_ALLOCATED_THREADS);
     }
 }

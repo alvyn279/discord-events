@@ -24,8 +24,11 @@ public class StatusEventReminderServiceStrategy implements EventReminderServiceS
     public Mono<Void> execute(DiscordCommandContext context) {
         return context.getMessageCreateEvent().getMessage().getChannel()
             .flatMap(messageChannel -> {
-                if (eventsCheckerScheduler.getCurrentTask() != null) {
-                    return eventsCheckerScheduler.getCurrentTask().getSubscribedChannel().getRestChannel().getData()
+                String guildId = context.getGuild().getId().asString();
+
+                if (eventsCheckerScheduler.getGuildEventsCheckerTask(guildId) != null) {
+                    return eventsCheckerScheduler.getGuildEventsCheckerTask(guildId)
+                        .getSubscribedChannel().getRestChannel().getData()
                         .flatMap(channelData -> messageChannel.createEmbed(embedCreateSpec ->
                             BotMessages.eventRemindersOnStatus(embedCreateSpec, channelData.name().get())
                         ));

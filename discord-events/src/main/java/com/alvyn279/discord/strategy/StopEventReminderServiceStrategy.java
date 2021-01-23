@@ -24,11 +24,13 @@ public class StopEventReminderServiceStrategy implements EventReminderServiceStr
     public Mono<Void> execute(DiscordCommandContext context) {
         return context.getMessageCreateEvent().getMessage().getChannel()
             .flatMap(messageChannel -> {
-                if (!eventsCheckerScheduler.isSafeToStop()) {
+                String guildId = context.getGuild().getId().asString();
+
+                if (!eventsCheckerScheduler.isSafeToStop(guildId)) {
                     return messageChannel.createEmbed(BotMessages::eventRemindersOff);
                 }
 
-                eventsCheckerScheduler.stopEventChecker();
+                eventsCheckerScheduler.stopEventChecker(guildId);
 
                 return messageChannel.createEmbed(BotMessages::eventRemindersTurnedOff);
             })
