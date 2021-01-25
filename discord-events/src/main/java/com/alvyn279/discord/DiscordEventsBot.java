@@ -37,8 +37,8 @@ public class DiscordEventsBot {
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
-    private static final String DISCORD_EVENTS_COMMAND_HELP = "help-events";
     private static final String DISCORD_EVENTS_COMMAND_DELETE_EVENT = "delete-events";
+    private static final String DISCORD_EVENTS_COMMAND_HELP = "help-events";
     private static final String DISCORD_EVENTS_COMMAND_LIST_EVENTS = "list-events";
     private static final String DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS = "my-events";
     private static final String DISCORD_EVENTS_COMMAND_REMIND = "remind-events";
@@ -56,11 +56,9 @@ public class DiscordEventsBot {
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
         final DeleteDiscordEventsStrategy deleteDiscordEventsStrategy = injector.getInstance(
-            DeleteSingleDiscordEventStrategy.class
-        );
+            DeleteSingleDiscordEventStrategy.class);
         final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
-            ListDiscordEventsForCurrentUserStrategy.class
-        );
+            ListDiscordEventsForCurrentUserStrategy.class);
         final HelpStrategy helpStrategy = new HelpStrategy();
 
         // Distribute handler strategies
@@ -75,15 +73,14 @@ public class DiscordEventsBot {
                         Constants.CHANNEL_USERS
                             .forEach(user -> embedCreateSpec.addField(user.getName(), user.getRole(), true));
                     }))
-                .then()
-        );
+                .then());
 
         commands.put(DISCORD_EVENTS_COMMAND_HELP, helpStrategy::execute);
 
         commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
-                    // COMMAND FORMAT: !create-event [str] [date] [time] [str]
+                    // COMMAND FORMAT: !create-event [str] [date] [time] [str]?
                     //                 ex: !create-event “Event title” 2021/02/02 19:00 “Event description”
                     // Parse tokens and create discord-events object
                     List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
@@ -140,8 +137,7 @@ public class DiscordEventsBot {
                         .tokens(tokens)
                         .build());
                 })
-            )
-        );
+            ));
 
         commands.put(DISCORD_EVENTS_COMMAND_LIST_MY_EVENTS, listPersonalDiscordEventsStrategy::execute);
 
