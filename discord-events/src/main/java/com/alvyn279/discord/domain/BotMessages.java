@@ -23,12 +23,13 @@ public class BotMessages {
     public static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
 
     private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
-    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
-    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
-        "You deleted the event called \"%s\" happening on %s.";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
         "You cannot delete \"%s\" because you are not the one that created it.";
+    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_TITLE = "Deleted Event";
+    private static final String DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR =
+        "You deleted the event called \"**%s**\" happening on %s.";
+    private static final String DISCORD_EVENTS_DELETE_MULTIPLE_CONFIRMATION_TITLE = "Deleted Events";
     private static final String DISCORD_EVENTS_HELP_TITLE = "discord-events Help";
     private static final String DISCORD_EVENTS_THUMBNAIL_LINK =
         "https://cdn.betterttv.net/emote/57b377aae42b335143d48993/3x";
@@ -50,13 +51,14 @@ public class BotMessages {
         "`!create-event [title:str] [date:date] [time:time] [description:str]?`";
     private static final String HELP_SECTION_DELETE = "Delete event";
     private static final String HELP_SECTION_DELETE_INFO =
-        "`!delete-events [deleteCode:str]`";
+        "`!delete-events [deleteCode:str]*`";
     private static final String HELP_SECTION_FORMATS = "Formats";
     private static final String HELP_SECTION_FORMATS_INFO =
         "`[date]:  MM/DD/YYYY (ex: 01/16/2021, 2/5/2021)`\n" +
             "`[time]:  hh[0-23]:mm[0-59] (ex: 19:30, 2:30, 14:30)`\n" +
             "`[str]:   \"some text\"`\n" +
-            "`[]?:     optional input`";
+            "`[]?:     optional input`\n" +
+            "`[]*:     repeatable one to many times`";
     private static final String HELP_SECTION_LIST = "Listing events";
     private static final String HELP_SECTION_LIST_INFO =
         "`!my-events`\n" +
@@ -133,6 +135,35 @@ public class BotMessages {
                 discordEvent.getName(),
                 DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
             ))
+            .setColor(Color.GREEN)
+            .setTimestamp(Instant.now());
+    }
+
+    /**
+     * Confirmation message for deletion of multiple discord events
+     *
+     * @param embedCreateSpec      embed to be modified
+     * @param deletedDiscordEvents discordEvents that were just deleted
+     */
+    public static void attachDeleteMultipleConfirmationToEmbed(EmbedCreateSpec embedCreateSpec,
+                                                               List<DiscordEvent> deletedDiscordEvents) {
+        StringBuilder description = new StringBuilder();
+        deletedDiscordEvents
+            .forEach(discordEvent -> description
+                .append(String.format(
+                    DISCORD_EVENTS_DELETE_CONFIRMATION_DESCRIPTION_FORMAT_STR,
+                    discordEvent.getName(),
+                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp()))
+                )
+                .append("\n")
+            );
+        embedCreateSpec
+            .setTitle(String.format(
+                EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.GARBAGE,
+                DISCORD_EVENTS_DELETE_MULTIPLE_CONFIRMATION_TITLE
+            ))
+            .setDescription(description.toString())
             .setColor(Color.GREEN)
             .setTimestamp(Instant.now());
     }

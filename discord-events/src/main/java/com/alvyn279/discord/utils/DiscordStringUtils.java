@@ -1,5 +1,7 @@
 package com.alvyn279.discord.utils;
 
+import discord4j.common.util.Snowflake;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,6 +19,21 @@ public class DiscordStringUtils {
     }
 
     /**
+     * Checks if the given string is a delete code (snowflake message id).
+     *
+     * @param s input token string to be tested
+     * @return boolean
+     */
+    public static boolean isDeleteCode(String s) {
+        try {
+            Snowflake.of(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Strips a string of the first and last character. This can be used to
      * remove quotes from a string.
      *
@@ -30,7 +47,7 @@ public class DiscordStringUtils {
     /**
      * Bare bones tokenizer. Tokenizes a string into a list of string tokens. It
      * takes into consideration tokens that are delimited by " or '.
-     *
+     * <p>
      * Example:
      * "!create-event \“Event title\” 2021/02/02 19:00 \“Event description\”" ->
      * ["!create-event", "Event title", "2021/02/02", "19:00", "Event description"]

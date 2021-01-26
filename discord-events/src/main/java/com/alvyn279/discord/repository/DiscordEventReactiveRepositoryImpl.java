@@ -216,7 +216,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
      * TEMPORARY: this can easily be replaced by adding an index to `messageId`
      * on DDB table.
      *
-     * @param args      context args (guild, user)
+     * @param args      context args (guild)
      * @param messageId unique identifier for all the events in
      * @return Mono<DiscordEvent>
      */

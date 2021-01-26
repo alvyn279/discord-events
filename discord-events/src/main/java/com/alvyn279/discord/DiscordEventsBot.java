@@ -55,13 +55,12 @@ public class DiscordEventsBot {
         // Instantiate strategies
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
-        final DeleteDiscordEventsStrategy deleteDiscordEventsStrategy = injector.getInstance(
-            DeleteSingleDiscordEventStrategy.class);
         final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
             ListDiscordEventsForCurrentUserStrategy.class);
         final HelpStrategy helpStrategy = new HelpStrategy();
 
         // Distribute handler strategies
+        // TODO: better top-level error handling for invalid args
         commands.put(DISCORD_EVENTS_COMMAND_PING, event ->
             event.getMessage().getChannel()
                 .flatMap(messageChannel -> messageChannel.createEmbed(
@@ -96,8 +95,17 @@ public class DiscordEventsBot {
         commands.put(DISCORD_EVENTS_COMMAND_DELETE_EVENT, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())
                 .flatMap(s -> {
-                    // COMMAND FORMAT: !delete-events [deleteCode:str]
                     List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
+                    final DeleteDiscordEventsStrategy deleteDiscordEventsStrategy;
+                    if (s.length() == 1) {
+                        return Mono.error(new Exception("Invalid delete-events arguments"));
+                    } else if (s.length() == 2) {
+                        // COMMAND FORMAT: !delete-events [deleteCode:str]
+                        deleteDiscordEventsStrategy = injector.getInstance(DeleteSingleDiscordEventStrategy.class);
+                    } else {
+                        // COMMAND FORMAT: !delete-events [deleteCode:str] [deleteCode:str] [deleteCode:str] ...
+                        deleteDiscordEventsStrategy = injector.getInstance(DeleteMultipleDiscordEventsStrategy.class);
+                    }
                     return deleteDiscordEventsStrategy.execute(DiscordCommandContext.builder()
                         .tokens(tokens)
                         .guild(guild)
