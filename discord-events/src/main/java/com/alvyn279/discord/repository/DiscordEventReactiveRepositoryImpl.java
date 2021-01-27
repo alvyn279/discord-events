@@ -29,8 +29,7 @@ import java.util.stream.Collectors;
 @Builder
 public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveRepository {
 
-    private static final String DISCORD_EVENTS_TABLE_NAME_KEY = "DISCORD_EVENTS_TABLE_NAME";
-    private static final String DISCORD_EVENTS_TABLE_NAME = EnvironmentUtils.getEnvVar(DISCORD_EVENTS_TABLE_NAME_KEY);
+    private static final String DISCORD_EVENTS_TABLE_NAME = EnvironmentUtils.getDDBTableName();
 
     private final DynamoDbAsyncClient client;
 

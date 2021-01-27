@@ -5,10 +5,9 @@
     "discord-events-cdk": "bin/discord-events-cdk.js"
   },
   "scripts": {
-    "setupEnv": "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY DISCORD_EVENTS_TABLE_NAME=$DISCORD_EVENTS_TABLE_NAME",
-    "build": "yarn run setupEnv && tsc && cdk synth",
-    "watch": "yarn run setupEnv && tsc -w",
-    "test": "yarn run setupEnv && jest",
+    "build": "tsc && cdk synth",
+    "watch": "tsc -w",
+    "test": "jest",
     "cdk": "cdk"
   },
   "devDependencies": {

@@ -18,12 +18,14 @@ test('Discord Events Stack has DDB table', () => {
       AWS_ACCESS_KEY_ID: '',
       AWS_SECRET_ACCESS_KEY: '',
       DISCORD_EVENTS_TABLE_NAME: '',
+      DISCORD_EVENTS_ENV: 'prod',
     },
     ddbPartitionKeyName: 'randomPartitionKeyName',
     ddbSortKeyName: 'randomSortKeyName',
     clusterName: 'randomClusterName',
     serviceName: 'randomServiceName',
     ddbTableName: 'randomTableName',
+    isProd: true,
   });
 
   // THEN

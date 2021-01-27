@@ -22,30 +22,53 @@ Manage events (create, view, & delete) for multiple discord servers.
 ### Reminder feature
 Opt-in feature where a separate thread in the bot checks for events and notifies a channel 15 minutes before it occurs.
 
-## 🛠 Setup
+## 🛠 Bot Setup
 
-1. Create an application and associated bot through [Discord developer portal](https://discord.com/developers/applications/).
-2. Enable all *Privileged Gateway Intents* for your bot on the Discord developer portal.
-3. Add bot to your desired servers with the following link (use CLIENT ID token from developer portal): `https://discordapp.com/api/oauth2/authorize?scope=bot&client_id=<YOUR CLIENT ID>`
+- **Prod bot**: Auto-scaled ECS service running the Java app with its own AWS DDB table
+- **Dev bot**: Containerized Java app running locally with its own AWS DDB table 
+
+1. You can have two application instances: `discord-events-bot` for prod and `discord-events-bot-test` for dev. Create an application and associated bot for each desired instance through [Discord developer portal](https://discord.com/developers/applications/).
+2. Enable all *Privileged Gateway Intents* for each bot on the Discord developer portal.
+3. Add each bot to your desired servers with the following link (use CLIENT ID token from developer portal): `https://discordapp.com/api/oauth2/authorize?scope=bot&client_id=<YOUR CLIENT ID>`.
 4. Set env vars in your shell:
-    - `AWS_DEFAULT_REGION`
-    - `AWS_ACCESS_KEY_ID` *
-    - `AWS_SECRET_ACCESS_KEY` *
-    - `DISCORD_BOT_TOKEN`
-    - `DISCORD_EVENTS_TABLE_NAME`
+    | Name  | Desc |
+    | ------------- | ------------- |
+    | `AWS_ACCOUNT`  | AWS account ID  |
+    | `AWS_DEFAULT_REGION`  | AWS region (ex: `us-east-1`)  |
+    | `AWS_ACCESS_KEY_ID` *  | AWS credentials  |
+    | `AWS_SECRET_ACCESS_KEY` *  | AWS credentials  |
+    | `DISCORD_BOT_TOKEN`  | Bot token from Discord Developer Portal  |
+    | `DISCORD_EVENTS_ENV`  | Execution env for discord-events (`dev`\|`prod`)  |
+    | `DISCORD_EVENTS_TABLE_NAME`  | Name your DDB table, the app will differentiate that of dev and prod  |
 
-\* Any AWS credentials setup can replace these for the bot's Java execution.
+<small>\* Any AWS credentials setup can replace these for the bot's Java execution.</small>
+
+### Switching between prod and dev bots
+You can switch bots by changing the following env vars in your shell:
+- `DISCORD_BOT_TOKEN`
+- `DISCORD_EVENTS_ENV`
+
+Aliases should do the trick:
+```sh
+alias botProd="export DISCORD_BOT_TOKEN=<your prod bot token> && export DISCORD_EVENTS_ENV=prod"
+alias botDev="export DISCORD_BOT_TOKEN=<your dev bot token> && export DISCORD_EVENTS_ENV=dev"
+```
 
 ## 🤖 Running the bot locally
-1. Run `docker-compose up`
+1. Deploy the CDK dev stack
+    1. [Switch to your dev bot](#switching-between-prod-and-dev-bots)
+    2. `cd discord-events-cdk`
+    3. `yarn install && yarn run build`
+    4. `yarn run cdk deploy DiscordEventsDevStack`
+2. `docker-compose up`
 
 
 ## ☁ Deploy the bot to AWS
 
-Assuming you have AWS credentials set up,
-1. `cd discord-events-cdk`
-2. `yarn install && yarn run build`
-3. `yarn run cdk deploy DiscordEventsStack`
+1. [Switch to your prod bot](#switching-between-prod-and-dev-bots)
+2. `cd discord-events-cdk`
+3. `yarn install && yarn run build`
+4. `yarn run cdk deploy DiscordEventsStack`
 
 You can always have your CI/CD pipeline deploy the newest version of your bot, just make sure that all the necessary environment variables (as indicated in setup) are set in the pipeline execution.
 

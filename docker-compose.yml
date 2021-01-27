@@ -6,6 +6,7 @@ services:
       - AWS_DEFAULT_REGION
       - AWS_SECRET_ACCESS_KEY
       - DISCORD_BOT_TOKEN
+      - DISCORD_EVENTS_ENV
       - DISCORD_EVENTS_TABLE_NAME
     build:
       context: ./discord-events
