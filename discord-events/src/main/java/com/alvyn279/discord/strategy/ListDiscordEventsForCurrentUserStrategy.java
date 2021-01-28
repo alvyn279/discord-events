@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Behaviour for the !my-events command.
