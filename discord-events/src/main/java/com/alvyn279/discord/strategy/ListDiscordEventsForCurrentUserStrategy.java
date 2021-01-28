@@ -52,18 +52,7 @@ public class ListDiscordEventsForCurrentUserStrategy implements ListDiscordEvent
                             .setColor(Color.DARK_GOLDENROD)
                             .setTimestamp(Instant.now());
 
-                        AtomicInteger eventCounter = new AtomicInteger(1);
-                        discordEvents.forEach(discordEvent ->
-                            BotMessages.DiscordEventSummaryFieldBuilder.builder()
-                                .discordEvent(discordEvent)
-                                .embedCreateSpec(embedCreateSpec)
-                                .count(eventCounter.getAndIncrement())
-                                .build()
-                                .withNumeratedTitle()
-                                .withDescriptionHeadlineEventName()
-                                .withEntityAndDeleteCodeDescription()
-                                .buildField()
-                        );
+                        BotMessages.attachDiscordEventsPersonalListToEmbed(embedCreateSpec, discordEvents);
                     }))
                 )
                 .then()

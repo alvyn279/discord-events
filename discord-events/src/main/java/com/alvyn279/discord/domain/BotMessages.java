@@ -31,6 +31,7 @@ public class BotMessages {
         "You deleted the event called \"**%s**\" happening on %s.";
     private static final String DISCORD_EVENTS_DELETE_MULTIPLE_CONFIRMATION_TITLE = "Deleted Events";
     private static final String DISCORD_EVENTS_HELP_TITLE = "discord-events Help";
+    private static final String DISCORD_EVENTS_NONE_FOUND = "No events were found.";
     private static final String DISCORD_EVENTS_THUMBNAIL_LINK =
         "https://cdn.betterttv.net/emote/57b377aae42b335143d48993/3x";
     private static final String ERROR_STATE_GENERIC_TITLE = "Oops! Something went wrong.";
@@ -90,6 +91,16 @@ public class BotMessages {
     }
 
     /**
+     * Sets the description of the embed to indicate that no
+     * items were found.
+     *
+     * @param embedCreateSpec embed to be modified
+     */
+    private static void attachNoDiscordEventsDescription(EmbedCreateSpec embedCreateSpec) {
+        embedCreateSpec.setDescription(DISCORD_EVENTS_NONE_FOUND);
+    }
+
+    /**
      * Fills an embed with a numerated list of {@link DiscordEvent}s with their time,
      * title, description.
      *
@@ -99,6 +110,11 @@ public class BotMessages {
     public static void attachDiscordEventsListToEmbed(EmbedCreateSpec embedCreateSpec,
                                                       List<DiscordEvent> discordEvents,
                                                       Map<String, User> usernamesMap) {
+        if (discordEvents.isEmpty()) {
+            attachNoDiscordEventsDescription(embedCreateSpec);
+            return;
+        }
+
         AtomicInteger eventCounter = new AtomicInteger(1);
         discordEvents.forEach(discordEvent ->
             BotMessages.DiscordEventSummaryFieldBuilder.builder()
@@ -113,6 +129,34 @@ public class BotMessages {
                         UNKNOWN_USER
                 )
                 .withEntityDescription()
+                .buildField()
+        );
+    }
+
+    /**
+     * Fills an embed with a numerated list of {@link DiscordEvent}s created by
+     * a single user.
+     *
+     * @param embedCreateSpec Embed creation spec object that can be modified
+     * @param discordEvents   List of discord events
+     */
+    public static void attachDiscordEventsPersonalListToEmbed(EmbedCreateSpec embedCreateSpec,
+                                                              List<DiscordEvent> discordEvents) {
+        if (discordEvents.isEmpty()) {
+            attachNoDiscordEventsDescription(embedCreateSpec);
+            return;
+        }
+
+        AtomicInteger eventCounter = new AtomicInteger(1);
+        discordEvents.forEach(discordEvent ->
+            BotMessages.DiscordEventSummaryFieldBuilder.builder()
+                .discordEvent(discordEvent)
+                .embedCreateSpec(embedCreateSpec)
+                .count(eventCounter.getAndIncrement())
+                .build()
+                .withNumeratedTitle()
+                .withDescriptionHeadlineEventName()
+                .withEntityAndDeleteCodeDescription()
                 .buildField()
         );
     }
