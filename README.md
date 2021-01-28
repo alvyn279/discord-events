@@ -78,5 +78,5 @@ You can always have your CI/CD pipeline deploy the newest version of your bot, j
 1. Timezone defaulted to Eastern Canada, change in `utils/DateUtils.java`.
 
 
-## Documentation
+## 📖 Resources
 * [How to Make a Discord Bot: an Overview and Tutorial](https://www.toptal.com/chatbot/how-to-make-a-discord-bot)
