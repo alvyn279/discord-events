@@ -29,13 +29,13 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
-        ListDiscordEventsCommandDTO commandArgs = ListDiscordEventsCommandDTO.builder()
+        ListDiscordEventsCommandDTO dto = ListDiscordEventsCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .upcomingLimit(Integer.parseInt(context.getTokens().get(1)))
             .currentDateTime(Instant.now())
             .build();
 
-        return discordEventReactiveRepository.listDiscordEventsByUpcomingWithLimit(commandArgs)
+        return discordEventReactiveRepository.listDiscordEventsByUpcomingWithLimit(dto)
             .flatMap(discordEvents -> context.getMessageCreateEvent().getMessage().getChannel()
                 .flatMap(messageChannel -> GuildUtils.retrieveGuildUsers(context.getGuild())
                     .flatMap(usersMap -> messageChannel.createEmbed(embedCreateSpec -> {

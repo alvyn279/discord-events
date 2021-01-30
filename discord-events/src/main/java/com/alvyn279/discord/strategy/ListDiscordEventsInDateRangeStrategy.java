@@ -30,13 +30,13 @@ public class ListDiscordEventsInDateRangeStrategy implements ListDiscordEventsSt
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
-        ListDiscordEventsCommandDTO commandArgs = ListDiscordEventsCommandDTO.builder()
+        ListDiscordEventsCommandDTO dto = ListDiscordEventsCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .startDateTime(DateUtils.fromDate(context.getTokens().get(1)))
             .endDateTime(DateUtils.fromDate(context.getTokens().get(2)))
             .build();
 
-        return discordEventReactiveRepository.listDiscordEventsByDateTimeRange(commandArgs)
+        return discordEventReactiveRepository.listDiscordEventsByDateTimeRange(dto)
             .flatMap(discordEvents -> context.getMessageCreateEvent().getMessage().getChannel()
                 .flatMap(messageChannel -> GuildUtils.retrieveGuildUsers(context.getGuild())
                     .flatMap(usersMap -> messageChannel.createEmbed(embedCreateSpec -> {
