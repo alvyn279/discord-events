@@ -2,7 +2,7 @@ package com.alvyn279.discord.strategy;
 
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
-import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -35,7 +35,7 @@ public class ListDiscordEventsForCurrentUserStrategy implements ListDiscordEvent
     public Mono<Void> execute(DiscordCommandContext context) {
         return Mono.just(context.getMessageCreateEvent().getMessage().getAuthor())
             .flatMap(optionalUser -> discordEventReactiveRepository.listDiscordEventCreatedByUser(
-                ListDiscordEventsCommandArgs.builder()
+                ListDiscordEventsCommandDTO.builder()
                     .guildId(context.getGuild().getId().asString())
                     .userId(optionalUser.orElseThrow().getId().asString())
                     .build())

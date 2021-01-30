@@ -3,7 +3,7 @@ package com.alvyn279.discord.strategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
-import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.inject.Inject;
 import discord4j.rest.util.Color;
@@ -29,7 +29,7 @@ public class ListUpcomingDiscordEventsStrategy implements ListDiscordEventsStrat
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
-        ListDiscordEventsCommandArgs commandArgs = ListDiscordEventsCommandArgs.builder()
+        ListDiscordEventsCommandDTO commandArgs = ListDiscordEventsCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .upcomingLimit(Integer.parseInt(context.getTokens().get(1)))
             .currentDateTime(Instant.now())

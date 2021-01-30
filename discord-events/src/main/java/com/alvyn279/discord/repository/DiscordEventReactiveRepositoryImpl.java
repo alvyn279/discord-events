@@ -1,6 +1,9 @@
 package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
+import com.alvyn279.discord.repository.dto.DeleteDiscordEventCommandDTO;
+import com.alvyn279.discord.repository.dto.DiscordEventsCommandDTO;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.exception.AccessDeniedException;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import lombok.Builder;
@@ -34,7 +37,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     private final DynamoDbAsyncClient client;
 
     @Override
-    public Mono<DiscordEvent> deleteDiscordEvent(DeleteDiscordEventCommandArgs args) {
+    public Mono<DiscordEvent> deleteDiscordEvent(DeleteDiscordEventCommandDTO args) {
 
         return getDiscordEventByMessageId(args, args.getDeleteCode())
             .flatMap(discordEvent -> {
@@ -65,8 +68,8 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithLimit(ListDiscordEventsCommandArgs args) {
-        // TODO: check input.guildId, input.currentDate, input.upcomingLimit
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithLimit(ListDiscordEventsCommandDTO args) {
+        // TODO: check args.guildId, args.currentDateTime, args.upcomingLimit
 
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
             "#guildId", DiscordEvent.PARTITION_KEY,
@@ -101,11 +104,12 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandArgs args) {
+    public Mono<List<DiscordEvent>> listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandDTO args) {
+        // TODO: check args.guildId, args.currentDateTime and args.upcomingTimeLimit
         Instant startDateTime = args.getCurrentDateTime();
         Instant endDateTime = args.getCurrentDateTime().plus(args.getUpcomingTimeLimit());
 
-        return listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs.builder()
+        return listDiscordEventsByDateTimeRange(ListDiscordEventsCommandDTO.builder()
             .startDateTime(startDateTime)
             .endDateTime(endDateTime)
             .guildId(args.getGuildId())
@@ -113,8 +117,8 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventsByDateTimeRange(ListDiscordEventsCommandArgs args) {
-        // TODO: check input.guildId, input.startDateTime, input.endDateTime
+    public Mono<List<DiscordEvent>> listDiscordEventsByDateTimeRange(ListDiscordEventsCommandDTO args) {
+        // TODO: check args.guildId, args.startDateTime, args.endDateTime
 
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
             "#guildId", DiscordEvent.PARTITION_KEY,
@@ -149,10 +153,10 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<List<DiscordEvent>> listDiscordEventCreatedByUser(ListDiscordEventsCommandArgs args) {
+    public Mono<List<DiscordEvent>> listDiscordEventCreatedByUser(ListDiscordEventsCommandDTO args) {
         // We allow users to view their all-time events so they can
         // clean up eventually the events they do not need.
-        // TODO: check input.guildId, input.userId
+        // TODO: check args.guildId, args.userId
 
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
             "#guildId", DiscordEvent.PARTITION_KEY,
@@ -188,6 +192,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
 
     @Override
     public Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent) {
+        // TODO: DTO for discord event ?
         PutItemRequest putDiscordEventRequest = PutItemRequest.builder()
             .tableName(DISCORD_EVENTS_TABLE_NAME)
             .item(DiscordEvent.toDDBItem(discordEvent))
@@ -219,7 +224,9 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
      * @param messageId unique identifier for all the events in
      * @return Mono<DiscordEvent>
      */
-    private Mono<DiscordEvent> getDiscordEventByMessageId(DiscordEventsCommandArgs args, String messageId) {
+    private Mono<DiscordEvent> getDiscordEventByMessageId(DiscordEventsCommandDTO args, String messageId) {
+        // TODO: check args.guildID and args.messageId
+
         Map<String, String> expressionAttributesNames = ImmutableMap.of(
             "#guildId", DiscordEvent.PARTITION_KEY,
             "#messageId", DiscordEvent.MESSAGE_ID_KEY

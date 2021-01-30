@@ -3,7 +3,7 @@ package com.alvyn279.discord.strategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.exception.AccessDeniedException;
-import com.alvyn279.discord.repository.DeleteDiscordEventCommandArgs;
+import com.alvyn279.discord.repository.dto.DeleteDiscordEventCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class DeleteSingleDiscordEventStrategy implements DeleteDiscordEventsStra
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
-        return discordEventReactiveRepository.deleteDiscordEvent(DeleteDiscordEventCommandArgs.builder()
+        return discordEventReactiveRepository.deleteDiscordEvent(DeleteDiscordEventCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .userId(context.getMessageCreateEvent().getMessage().getAuthor().orElseThrow().getId().asString())
             .deleteCode(context.getTokens().get(1))

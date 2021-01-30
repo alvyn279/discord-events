@@ -1,7 +1,8 @@
-package com.alvyn279.discord.repository;
+package com.alvyn279.discord.repository.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -11,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-public class DeleteDiscordEventCommandArgs extends DiscordEventsCommandArgs {
+public class DeleteDiscordEventCommandDTO extends DiscordEventsCommandDTO {
+    @NonNull
     private final String deleteCode;
 }

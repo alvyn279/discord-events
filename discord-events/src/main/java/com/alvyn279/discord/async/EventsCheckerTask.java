@@ -5,7 +5,7 @@ import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.domain.Emoji;
 import com.alvyn279.discord.domain.GuildUtils;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
-import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.rest.util.Color;
@@ -67,7 +67,7 @@ public class EventsCheckerTask implements Runnable {
         // been notified as per its own in-memory cache, then sends a message to
         // the subscribed channel.
 
-        repository.listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandArgs.builder()
+        repository.listDiscordEventsByUpcomingWithTimeLimit(ListDiscordEventsCommandDTO.builder()
             .guildId(guild.getId().asString())
             .currentDateTime(Instant.now())
             .upcomingTimeLimit(Duration.ofMinutes(EVENT_CHECK_TIME_DELTA_IN_MINUTES))

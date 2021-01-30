@@ -1,4 +1,4 @@
-package com.alvyn279.discord.repository;
+package com.alvyn279.discord.repository.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import java.time.temporal.TemporalAmount;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-public class ListDiscordEventsCommandArgs extends DiscordEventsCommandArgs {
+public class ListDiscordEventsCommandDTO extends DiscordEventsCommandDTO {
     private final Integer upcomingLimit;
     // Common implementation of {@link TemporalAmount}
     // is {@link Duration}.

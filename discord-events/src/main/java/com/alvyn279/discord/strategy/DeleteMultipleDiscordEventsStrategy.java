@@ -4,7 +4,7 @@ import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.exception.AccessDeniedException;
-import com.alvyn279.discord.repository.DeleteDiscordEventCommandArgs;
+import com.alvyn279.discord.repository.dto.DeleteDiscordEventCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DiscordStringUtils;
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ public class DeleteMultipleDiscordEventsStrategy implements DeleteDiscordEventsS
         final Flux<DiscordEvent> deletedDiscordEvents = Flux.concat(
             extractDeleteCodes(context.getTokens()).stream()
                 .map(deleteCode -> discordEventReactiveRepository.deleteDiscordEvent(
-                    DeleteDiscordEventCommandArgs.builder()
+                    DeleteDiscordEventCommandDTO.builder()
                         .guildId(context.getGuild().getId().asString())
                         .userId(context.getMessageCreateEvent().getMessage().getAuthor().orElseThrow().getId().asString())
                         .deleteCode(deleteCode)

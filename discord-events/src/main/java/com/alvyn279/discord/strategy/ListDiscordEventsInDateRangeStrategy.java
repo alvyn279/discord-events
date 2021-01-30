@@ -3,7 +3,7 @@ package com.alvyn279.discord.strategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
-import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DateUtils;
 import com.google.inject.Inject;
@@ -30,7 +30,7 @@ public class ListDiscordEventsInDateRangeStrategy implements ListDiscordEventsSt
 
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
-        ListDiscordEventsCommandArgs commandArgs = ListDiscordEventsCommandArgs.builder()
+        ListDiscordEventsCommandDTO commandArgs = ListDiscordEventsCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .startDateTime(DateUtils.fromDate(context.getTokens().get(1)))
             .endDateTime(DateUtils.fromDate(context.getTokens().get(2)))

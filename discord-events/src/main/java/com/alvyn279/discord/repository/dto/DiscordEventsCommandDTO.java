@@ -1,6 +1,7 @@
-package com.alvyn279.discord.repository;
+package com.alvyn279.discord.repository.dto;
 
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -9,7 +10,9 @@ import lombok.experimental.SuperBuilder;
  */
 @Data
 @SuperBuilder
-public class DiscordEventsCommandArgs {
+public class DiscordEventsCommandDTO {
+    @NonNull
     private final String guildId;
+
     private final String userId;
 }

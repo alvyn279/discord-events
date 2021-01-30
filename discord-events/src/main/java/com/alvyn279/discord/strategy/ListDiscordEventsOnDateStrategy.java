@@ -3,7 +3,7 @@ package com.alvyn279.discord.strategy;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
-import com.alvyn279.discord.repository.ListDiscordEventsCommandArgs;
+import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DateUtils;
 import com.google.inject.Inject;
@@ -31,7 +31,7 @@ public class ListDiscordEventsOnDateStrategy implements ListDiscordEventsStrateg
     @Override
     public Mono<Void> execute(DiscordCommandContext context) {
         Instant targetDate = DateUtils.fromDate(context.getTokens().get(1));
-        ListDiscordEventsCommandArgs commandArgs = ListDiscordEventsCommandArgs.builder()
+        ListDiscordEventsCommandDTO commandArgs = ListDiscordEventsCommandDTO.builder()
             .guildId(context.getGuild().getId().asString())
             .startDateTime(targetDate)
             .endDateTime(DateUtils.nextDaySameTime(targetDate))
