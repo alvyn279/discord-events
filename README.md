@@ -4,8 +4,7 @@
         src="https://i.imgur.com/iNHa4y9.png"
         width=450
     />
-    <p>Re-inventing for fun an AWS-backed Discord bot to schedule events</p>
-    <code>!help-events</code>
+    <p>Re-inventing for fun an AWS-backed Discord bot to schedule events.</p>
 </div>
 
 ## 🕌 Design 
@@ -31,7 +30,7 @@ Opt-in feature where a separate thread in the bot checks for events and notifies
 2. Enable all *Privileged Gateway Intents* for each bot on the Discord developer portal.
 3. Add each bot to your desired servers with the following link (use CLIENT ID token from developer portal): `https://discordapp.com/api/oauth2/authorize?scope=bot&client_id=<YOUR CLIENT ID>`.
 4. Set env vars in your shell:
-    | Name  | Desc |
+    | Name  | Description |
     | ------------- | ------------- |
     | `AWS_ACCOUNT`  | AWS account ID  |
     | `AWS_DEFAULT_REGION`  | AWS region (ex: `us-east-1`)  |
@@ -76,6 +75,18 @@ You can always have your CI/CD pipeline deploy the newest version of your bot, j
 ## 🤮 Hardcoded stuff
 
 1. Timezone defaulted to Eastern Canada, change in `utils/DateUtils.java`.
+
+
+## 👩🏾‍💻Usage
+
+| Command  | Example |
+| ------------- | ------------- |
+| `!create-event [title:str] [date:date] [time:time] [description:str]?` | <img src="https://i.imgur.com/LsWoRyZ.png" width=450 /> |
+| `!delete-events [deleteCode:str]*`  | <img src="https://i.imgur.com/6PRA5b5.png" width=450 /> |
+| `!my-events` *  | <img src="https://i.imgur.com/UYlbMV8.png" width=450 />  |
+| `!list-events [upcoming:num] | [on:date] | [from:date] [to:date]`  | <img src="https://i.imgur.com/b09TUPR.png" width=450 /> |
+| `!remind-events [on|off:str]?`  | <img src="https://i.imgur.com/G7eTOVh.png" width=450 />  |
+| `!help-events`  | <img src="https://i.imgur.com/VXYxM0w.png" width=450 />  |
 
 
 ## 📖 Resources
