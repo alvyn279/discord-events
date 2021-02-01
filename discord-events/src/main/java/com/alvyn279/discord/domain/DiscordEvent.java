@@ -1,5 +1,6 @@
 package com.alvyn279.discord.domain;
 
+import com.google.common.collect.ImmutableSet;
 import discord4j.common.util.Snowflake;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.utils.ImmutableMap;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class that represents a Discord Event that the users create while
@@ -29,6 +31,7 @@ public class DiscordEvent {
     public static final String CREATED_BY_KEY = "createdBy";
     public static final String NAME_KEY = "name";
     public static final String DESCRIPTION_KEY = "description";
+    public static final String ATTENDEES_KEY = "attendees";
 
     public static final String MESSAGE_ID_LABEL = "Message ID";
     public static final String CREATED_BY_LABEL = "Created by";
@@ -68,7 +71,15 @@ public class DiscordEvent {
     /**
      * The description for the event
      */
+    @NonNull
     private final String description;
+
+    /**
+     * The {@link Snowflake} ids of the event's attendees.
+     * This is a readonly value.
+     */
+    @NonNull
+    private final Set<String> attendees;
 
 
     /**
@@ -147,6 +158,7 @@ public class DiscordEvent {
             .put(CREATED_BY_KEY, AttributeValue.builder().s(discordEvent.createdBy).build())
             .put(DESCRIPTION_KEY, AttributeValue.builder().s(discordEvent.description).build())
             .put(NAME_KEY, AttributeValue.builder().s(discordEvent.name).build())
+            .put(ATTENDEES_KEY, AttributeValue.builder().ss(discordEvent.attendees).build())
             .build();
     }
 
@@ -167,6 +179,9 @@ public class DiscordEvent {
             .createdBy(map.get(CREATED_BY_KEY).s())
             .name(map.get(NAME_KEY).s())
             .description(map.get(DESCRIPTION_KEY).s())
+            .attendees(ImmutableSet.copyOf(
+                map.get(ATTENDEES_KEY).ss()
+            ))
             .build();
     }
 }

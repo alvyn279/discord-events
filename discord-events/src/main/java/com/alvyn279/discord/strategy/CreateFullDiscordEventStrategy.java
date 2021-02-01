@@ -4,6 +4,7 @@ import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DateUtils;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
@@ -35,7 +36,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
         Guild guild = context.getGuild();
         List<String> tokens = context.getTokens();
         Message msg = event.getMessage();
-        // Support optional descriptions. We cannot adopt a null
+        // Support optional descriptions. We cannot adopt an empty string
         // attribute model for {@link DiscordEvent} because Discord
         // does support setting null attributes for embeds.
         String desc = (tokens.size() == 5 ? tokens.get(4) : "");
@@ -48,6 +49,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
             .messageId(msg.getId().asString())
             .name(tokens.get(1))
             .description(desc)
+            .attendees(ImmutableSet.of())
             .build();
 
         //TODO: check existence before writing
