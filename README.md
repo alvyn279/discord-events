@@ -60,7 +60,7 @@ alias botDev="export DISCORD_BOT_TOKEN=<your dev bot token> && export DISCORD_EV
     2. `cd discord-events-cdk`
     3. `yarn install && yarn run build`
     4. `yarn run cdk deploy DiscordEventsDevStack`
-2. `docker-compose up`
+2. From root dir, `docker-compose up`
 
 
 ## ☁ Deploy the bot to AWS
