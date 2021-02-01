@@ -83,7 +83,7 @@ You can always have your CI/CD pipeline deploy the newest version of your bot, j
 | ------------- | ------------- |
 | `!create-event [title:str] [date:date] [time:time] [description:str]?` | <img src="https://i.imgur.com/LsWoRyZ.png" width=450 /> |
 | `!delete-events [deleteCode:str]*`  | <img src="https://i.imgur.com/6PRA5b5.png" width=450 /> |
-| `!my-events` *  | <img src="https://i.imgur.com/UYlbMV8.png" width=450 />  |
+| `!my-events` | <img src="https://i.imgur.com/UYlbMV8.png" width=450 />  |
 | `!list-events [upcoming:num] | [on:date] | [from:date] [to:date]`  | <img src="https://i.imgur.com/b09TUPR.png" width=450 /> |
 | `!remind-events [on|off:str]?`  | <img src="https://i.imgur.com/G7eTOVh.png" width=450 />  |
 | `!help-events`  | <img src="https://i.imgur.com/VXYxM0w.png" width=450 />  |
