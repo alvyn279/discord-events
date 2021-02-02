@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
+import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
+
 /**
  * Class that represents a Discord Event that the users create while
  * interacting with the bot.
@@ -137,6 +139,31 @@ public class DiscordEvent {
         }
     }
 
+    /***
+     * Safe copy of raw DDB map of string attribute to value (will not contain nulls). It sets defaults if
+     * some of the optional fields are missing.
+     *
+     * This is the function that a
+     * {DynamoDbMapper https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBMapper.html}
+     * would usually expose as skip-missing-atttributes annotation.
+     *
+     * Assumptions: partition and sort keys are always non-nulls.
+     *
+     * @param map DDB items maps
+     * @return non-null attribute-attributeValue map
+     */
+    private static Map<String, AttributeValue> safeDDBMap(Map<String, AttributeValue> map) {
+        return new ImmutableMap.Builder<String, AttributeValue>()
+            .put(PARTITION_KEY, map.get(PARTITION_KEY))
+            .put(SORT_KEY, map.get(SORT_KEY))
+            .put(MESSAGE_ID_KEY, map.getOrDefault(MESSAGE_ID_KEY, AttributeValue.builder().s(EMPTY).build()))
+            .put(CREATED_BY_KEY, map.getOrDefault(CREATED_BY_KEY, AttributeValue.builder().s(EMPTY).build()))
+            .put(NAME_KEY, map.getOrDefault(NAME_KEY, AttributeValue.builder().s(EMPTY).build()))
+            .put(DESCRIPTION_KEY, map.getOrDefault(DESCRIPTION_KEY, AttributeValue.builder().s(EMPTY).build()))
+            .put(ATTENDEES_KEY, map.getOrDefault(ATTENDEES_KEY, AttributeValue.builder().ss(ImmutableSet.of()).build()))
+            .build();
+    }
+
     /**
      * AWS DDB SETTER
      * Creates an AWS DDB-processable item for read/writes with the AWS SDK client
@@ -166,22 +193,22 @@ public class DiscordEvent {
      * AWS DDB GETTER
      * Creates a client-side instance of {@link DiscordEvent} from attributes map
      *
-     * @param map Map<String, AttributeValue> map from DDB reads
+     * @param rawMap Map<String, AttributeValue> map from DDB reads
      * @return A discord event
      */
-    public static DiscordEvent fromDDBMap(Map<String, AttributeValue> map) {
+    public static DiscordEvent fromDDBMap(Map<String, AttributeValue> rawMap) {
+        Map<String, AttributeValue> map = safeDDBMap(rawMap);
         DatetimeCreatedBy datetimeCreatedBy = DatetimeCreatedBy.from(map.get(SORT_KEY).s());
         return DiscordEvent.builder()
             .guildId(map.get(PARTITION_KEY).s())
             .timestamp(datetimeCreatedBy.datetime)
-            .createdBy(datetimeCreatedBy.createdBy)
             .messageId(map.get(MESSAGE_ID_KEY).s())
             .createdBy(map.get(CREATED_BY_KEY).s())
             .name(map.get(NAME_KEY).s())
             .description(map.get(DESCRIPTION_KEY).s())
-            .attendees(ImmutableSet.copyOf(
-                map.get(ATTENDEES_KEY).ss()
-            ))
+            .attendees(
+                ImmutableSet.copyOf(map.get(ATTENDEES_KEY).ss())
+            )
             .build();
     }
 }

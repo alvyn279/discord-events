@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
  */
 public class DiscordStringUtils {
 
+    public static final String EMPTY = "";
+
     private static final String TOKENIZER_GROUP_DELIMITER_REGEX = "\"([^\"]*)\"|'([^']*)'|(\\S+)";
 
     private static boolean isEmbeddedString(String s) {
