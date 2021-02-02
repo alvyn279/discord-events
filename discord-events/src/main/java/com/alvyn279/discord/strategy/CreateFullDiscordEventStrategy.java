@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.List;
 
+import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
+
 /**
  * Implements {@link CreateDiscordEventStrategy} by writing a discord event
  * to DDB with all its properties.
@@ -39,7 +41,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
         // Support optional descriptions. We cannot adopt an empty string
         // attribute model for {@link DiscordEvent} because Discord
         // does support setting null attributes for embeds.
-        String desc = (tokens.size() == 5 ? tokens.get(4) : "");
+        String desc = (tokens.size() == 5 ? tokens.get(4) : EMPTY);
 
         DiscordEvent discordEvent = DiscordEvent.builder()
             .guildId(guild.getId().asString())

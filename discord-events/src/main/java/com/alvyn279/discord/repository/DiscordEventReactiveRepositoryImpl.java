@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
+
 /**
  * Implementation of {@link DiscordEventReactiveRepository} where the repository uses
  * an async DDB client for its operations.
@@ -57,7 +59,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                         log.info("Deleted DDB event {}: {} {}",
                             discordEvent.getMessageId(),
                             httpResponse.statusCode(),
-                            httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
+                            httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : EMPTY);
                         return Mono.just(discordEvent);
                     })
                     .onErrorResume(throwable -> {
@@ -204,7 +206,7 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
                 log.info("Wrote to DDB event {}: {} {}",
                     discordEvent.getMessageId(),
                     httpResponse.statusCode(),
-                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : "");
+                    httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : EMPTY);
                 return Mono.just(discordEvent);
             })
             .onErrorResume(throwable -> {

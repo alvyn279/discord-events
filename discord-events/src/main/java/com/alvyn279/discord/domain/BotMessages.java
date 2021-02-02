@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
+
 /**
  * Utility class with predetermined string formats for the
  * messages sent from the DiscordEvents bot to the channel.
@@ -369,11 +371,11 @@ public class BotMessages {
         private final Integer count;
 
         @Builder.Default
-        private String title = "";
+        private String title = EMPTY;
         @Builder.Default
-        private String description = "";
+        private String description = EMPTY;
         @Builder.Default
-        private String descriptionHeadline = "";
+        private String descriptionHeadline = EMPTY;
         @Builder.Default
         private Boolean inline = false;
 
@@ -384,7 +386,7 @@ public class BotMessages {
          * @return builder
          */
         private StringBuilder commonDescription() {
-            if (discordEvent.getDescription().equals("")) {
+            if (discordEvent.getDescription().isEmpty()) {
                 return new StringBuilder();
             }
             return new StringBuilder()
