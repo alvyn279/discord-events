@@ -4,7 +4,6 @@ import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.utils.DateUtils;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
@@ -51,7 +50,6 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
             .messageId(msg.getId().asString())
             .name(tokens.get(1))
             .description(desc)
-            .attendees(ImmutableSet.of())
             .build();
 
         //TODO: check existence before writing
