@@ -3,6 +3,7 @@ package com.alvyn279.discord.strategy;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
+import com.alvyn279.discord.repository.dto.DiscordEventDTO;
 import com.alvyn279.discord.utils.DateUtils;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -13,8 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-
-import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
 
 /**
  * Implements {@link CreateDiscordEventStrategy} by writing a discord event
@@ -37,12 +36,10 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
         Guild guild = context.getGuild();
         List<String> tokens = context.getTokens();
         Message msg = event.getMessage();
-        // Support optional descriptions. We cannot adopt an empty string
-        // attribute model for {@link DiscordEvent} because Discord
-        // does support setting null attributes for embeds.
-        String desc = (tokens.size() == 5 ? tokens.get(4) : EMPTY);
+        // Support optional descriptions
+        String desc = (tokens.size() == 5 ? tokens.get(4) : null);
 
-        DiscordEvent discordEvent = DiscordEvent.builder()
+        DiscordEventDTO discordEventDTO = DiscordEventDTO.builder()
             .guildId(guild.getId().asString())
             .timestamp(DateUtils.fromDateAndTime(tokens.get(2), tokens.get(3)))
             .createdBy(msg.getAuthor().isPresent() ?
@@ -54,7 +51,7 @@ public class CreateFullDiscordEventStrategy implements CreateDiscordEventStrateg
 
         //TODO: check existence before writing
 
-        return discordEventReactiveRepository.saveDiscordEvent(discordEvent)
+        return discordEventReactiveRepository.saveDiscordEvent(discordEventDTO)
             // Announce newly created event
             .flatMap(discordEventRes -> msg.getChannel()
                 .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec ->

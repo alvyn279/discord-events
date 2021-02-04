@@ -2,6 +2,7 @@ package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.dto.DeleteDiscordEventCommandDTO;
+import com.alvyn279.discord.repository.dto.DiscordEventDTO;
 import com.alvyn279.discord.repository.dto.DiscordEventsCommandDTO;
 import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import com.alvyn279.discord.exception.AccessDeniedException;
@@ -193,21 +194,22 @@ public class DiscordEventReactiveRepositoryImpl implements DiscordEventReactiveR
     }
 
     @Override
-    public Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent) {
-        // TODO: DTO for discord event ?
+    public Mono<DiscordEvent> saveDiscordEvent(DiscordEventDTO discordEventDTO) {
+        Map<String, AttributeValue> itemToSave = DiscordEvent.toDDBItem(discordEventDTO);
         PutItemRequest putDiscordEventRequest = PutItemRequest.builder()
             .tableName(DISCORD_EVENTS_TABLE_NAME)
-            .item(DiscordEvent.toDDBItem(discordEvent))
+            .item(itemToSave)
             .build();
 
         return Mono.fromCompletionStage(client.putItem(putDiscordEventRequest))
             .flatMap(putItemResponse -> {
                 SdkHttpResponse httpResponse = putItemResponse.sdkHttpResponse();
+                DiscordEvent savedDiscordEvent = DiscordEvent.fromDDBMap(itemToSave);
                 log.info("Wrote to DDB event {}: {} {}",
-                    discordEvent.getMessageId(),
+                    savedDiscordEvent.getMessageId(),
                     httpResponse.statusCode(),
                     httpResponse.statusText().isPresent() ? httpResponse.statusText().get() : EMPTY);
-                return Mono.just(discordEvent);
+                return Mono.just(savedDiscordEvent);
             })
             .onErrorResume(throwable -> {
                 log.error("Error writing to DDB", throwable);

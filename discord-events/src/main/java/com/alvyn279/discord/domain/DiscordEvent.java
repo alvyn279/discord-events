@@ -1,5 +1,6 @@
 package com.alvyn279.discord.domain;
 
+import com.alvyn279.discord.repository.dto.DiscordEventDTO;
 import com.google.common.collect.ImmutableSet;
 import discord4j.common.util.Snowflake;
 import lombok.Builder;
@@ -16,15 +17,14 @@ import java.util.Set;
 import static com.alvyn279.discord.utils.DiscordStringUtils.EMPTY;
 
 /**
- * Class that represents a Discord Event that the users create while
- * interacting with the bot.
+ * Class that represents a Discord Event from the DDB table.
  * <p>
  * DynamoDB:
  * PK: `{guildID}`
  * SK: `{timestamp}#{createdBy}`
  */
-@Builder
 @Data
+@Builder
 public class DiscordEvent {
     // Key names for DiscordEvent entity in DDB Table (attrs)
     public static final String PARTITION_KEY = "guildId";
@@ -145,7 +145,7 @@ public class DiscordEvent {
      *
      * This is the function that a
      * {DynamoDbMapper https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBMapper.html}
-     * would usually expose as skip-missing-atttributes annotation.
+     * would usually expose as skip-missing-attributes annotation.
      *
      * Assumptions: partition and sort keys are always non-nulls.
      *
@@ -167,26 +167,35 @@ public class DiscordEvent {
     /**
      * AWS DDB SETTER
      * Creates an AWS DDB-processable item for read/writes with the AWS SDK client
+     * This will take care of excluding the nullable attributes from the written
+     * DDB item/map.
      *
-     * @param discordEvent DiscordEvent pojo
+     * @param discordEventDTO DiscordEventDTO pojo
      * @return Item in ddb domain
      */
-    public static Map<String, AttributeValue> toDDBItem(DiscordEvent discordEvent) {
-        return ImmutableMap.<String, AttributeValue>builder()
-            .put(PARTITION_KEY, AttributeValue.builder().s(discordEvent.guildId).build())
+    public static Map<String, AttributeValue> toDDBItem(DiscordEventDTO discordEventDTO) {
+        ImmutableMap.Builder<String, AttributeValue> ddbItemBuilder = ImmutableMap.<String, AttributeValue>builder()
+            .put(PARTITION_KEY, AttributeValue.builder().s(discordEventDTO.getGuildId()).build())
             .put(SORT_KEY, AttributeValue.builder().s(
                 DatetimeCreatedBy.builder()
-                    .datetime(discordEvent.timestamp)
-                    .createdBy(discordEvent.createdBy)
+                    .datetime(discordEventDTO.getTimestamp())
+                    .createdBy(discordEventDTO.getCreatedBy())
                     .build()
                     .asString())
                 .build())
-            .put(MESSAGE_ID_KEY, AttributeValue.builder().s(discordEvent.messageId).build())
-            .put(CREATED_BY_KEY, AttributeValue.builder().s(discordEvent.createdBy).build())
-            .put(DESCRIPTION_KEY, AttributeValue.builder().s(discordEvent.description).build())
-            .put(NAME_KEY, AttributeValue.builder().s(discordEvent.name).build())
-            .put(ATTENDEES_KEY, AttributeValue.builder().ss(discordEvent.attendees).build())
-            .build();
+            .put(MESSAGE_ID_KEY, AttributeValue.builder().s(discordEventDTO.getMessageId()).build())
+            .put(CREATED_BY_KEY, AttributeValue.builder().s(discordEventDTO.getCreatedBy()).build())
+            .put(NAME_KEY, AttributeValue.builder().s(discordEventDTO.getName()).build());
+
+        if (discordEventDTO.getDescription() != null) {
+            ddbItemBuilder.put(DESCRIPTION_KEY, AttributeValue.builder().s(discordEventDTO.getDescription()).build());
+        }
+
+        if (discordEventDTO.getAttendees() != null && !discordEventDTO.getAttendees().isEmpty()) {
+            ddbItemBuilder.put(ATTENDEES_KEY, AttributeValue.builder().ss(discordEventDTO.getAttendees()).build());
+        }
+
+        return ddbItemBuilder.build();
     }
 
     /**

@@ -2,6 +2,7 @@ package com.alvyn279.discord.repository;
 
 import com.alvyn279.discord.domain.DiscordEvent;
 import com.alvyn279.discord.repository.dto.DeleteDiscordEventCommandDTO;
+import com.alvyn279.discord.repository.dto.DiscordEventDTO;
 import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
 import reactor.core.publisher.Mono;
 
@@ -64,9 +65,9 @@ public interface DiscordEventReactiveRepository {
     /**
      * Saves a {@link DiscordEvent} to a datastore in a reactive manner.
      *
-     * @param discordEvent DiscordEvent built on info obtained from
-     *                     a dispatched discord command
+     * @param discordEventDTO DiscordEvent data transfer object that has nullable
+     *                        `description` and `attendees` fields.
      * @return Mono<DiscordEvent> saved event
      */
-    Mono<DiscordEvent> saveDiscordEvent(DiscordEvent discordEvent);
+    Mono<DiscordEvent> saveDiscordEvent(DiscordEventDTO discordEventDTO);
 }
