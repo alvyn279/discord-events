@@ -56,7 +56,8 @@ public enum Emoji {
     BOOK("book"),
     GARBAGE("wastebasket"),
     NOTIFS_ON("bell"),
-    NOTIFS_OFF("no_bell");
+    NOTIFS_OFF("no_bell"),
+    RAISE_HAND("woman_raising_hand");
 
     private final String discordNotation;
 

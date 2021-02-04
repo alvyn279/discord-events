@@ -25,6 +25,8 @@ public class BotMessages {
     public static final String EMOJI_AND_TITLE_FORMAT_STR = "**%s** %s";
 
     private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
+    private static final String DISCORD_EVENTS_ATTEND_EVENTS_TITLE = "Attend Events";
+    private static final String DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION = "React to the events you wish to attend.";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
         "You cannot delete \"%s\" because you are not the one that created it.";
@@ -89,6 +91,34 @@ public class BotMessages {
             SectionTuple.builder().section(HELP_SECTION_LIST).sectionInfo(HELP_SECTION_LIST_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_REMINDERS).sectionInfo(HELP_SECTION_REMINDERS_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_FORMATS).sectionInfo(HELP_SECTION_FORMATS_INFO).build()
+        );
+    }
+
+    /**
+     * Fills an embed with a numerated list of the attendable {@link DiscordEvent}s.
+     *
+     * @param embedCreateSpec embed to be modified
+     * @param discordEvents attendable events
+     */
+    public static void attachAttendableDiscordEvents(EmbedCreateSpec embedCreateSpec,
+                                                      List<DiscordEvent> discordEvents) {
+        embedCreateSpec
+            .setTitle(String.format(
+                BotMessages.EMOJI_AND_TITLE_FORMAT_STR,
+                Emoji.RAISE_HAND,
+                BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_TITLE))
+            .setDescription(BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
+            .setColor(Color.LIGHT_SEA_GREEN);
+
+        AtomicInteger eventCounter = new AtomicInteger(1);
+        discordEvents.forEach(discordEvent ->
+            BotMessages.DiscordEventSummaryFieldBuilder.builder()
+                .discordEvent(discordEvent)
+                .embedCreateSpec(embedCreateSpec)
+                .count(eventCounter.getAndIncrement())
+                .build()
+                .withNumeratedSingleLiner()
+                .buildField()
         );
     }
 
@@ -470,6 +500,25 @@ public class BotMessages {
          */
         public DiscordEventSummaryFieldBuilder withInline(Boolean val) {
             this.inline = val;
+            return this;
+        }
+
+        /**
+         * Sets a title, no description, and numeration . The title resumes everything.
+         *
+         * @return builder
+         */
+        public DiscordEventSummaryFieldBuilder withNumeratedSingleLiner() {
+            this.title = new StringBuilder()
+                .append("[")
+                .append(count)
+                .append("] ")
+                .append(String.format(
+                    "**%s**, %s",
+                    discordEvent.getName(),
+                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
+                ))
+                .toString();
             return this;
         }
 
