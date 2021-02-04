@@ -10,10 +10,26 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alvyn279.discord.utils.Constants.NUMBER_TO_RAW_EMOJI_STRING;
+
 /**
  * Utility functions adding Discord context
  */
 public class GuildUtils {
+
+    /**
+     * Obtains the raw string unicode for a numbered emoji.
+     *
+     * @param number number
+     * @return raw string
+     */
+    public static String getRawNumberReactionEmoji(Integer number) {
+        if (number < 0 || number > 9 || !NUMBER_TO_RAW_EMOJI_STRING.containsKey(number)) {
+            throw new RuntimeException("Discord does not have emojis outside the 0-9 inclusive range.");
+        }
+
+        return NUMBER_TO_RAW_EMOJI_STRING.get(number);
+    }
 
     /**
      * Retrieves all the guild {@link User}s through the

@@ -36,6 +36,7 @@ public class DiscordEventsBot {
 
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
+    private static final String DISCORD_EVENTS_COMMAND_ATTEND_EVENT = "attend-event";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
     private static final String DISCORD_EVENTS_COMMAND_DELETE_EVENT = "delete-events";
     private static final String DISCORD_EVENTS_COMMAND_HELP = "help-events";
@@ -58,6 +59,8 @@ public class DiscordEventsBot {
         final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
             ListDiscordEventsForCurrentUserStrategy.class);
         final HelpStrategy helpStrategy = new HelpStrategy();
+        final AttendDiscordEventStrategy attendDiscordEventStrategy = injector.getInstance(
+            AttendDiscordEventStrategy.class);
 
         // Distribute handler strategies
         // TODO: better top-level error handling for invalid args
@@ -75,6 +78,20 @@ public class DiscordEventsBot {
                 .then());
 
         commands.put(DISCORD_EVENTS_COMMAND_HELP, helpStrategy::execute);
+
+        commands.put(DISCORD_EVENTS_COMMAND_ATTEND_EVENT, messageCreateEvent -> messageCreateEvent.getGuild()
+            .flatMap(guild -> Mono.just(messageCreateEvent.getMessage().getContent())
+                .flatMap(s -> {
+                    // COMMAND FORMAT: !attend-event
+                    List<String> tokens = DiscordStringUtils.tokenizeCommandAndArgs(s);
+                    return attendDiscordEventStrategy.execute(DiscordCommandContext.builder()
+                        .tokens(tokens)
+                        .guild(guild)
+                        .messageCreateEvent(messageCreateEvent)
+                        .build()
+                    );
+                })
+            ));
 
         commands.put(DISCORD_EVENTS_COMMAND_CREATE_EVENT, event -> event.getGuild()
             .flatMap(guild -> Mono.just(event.getMessage().getContent())

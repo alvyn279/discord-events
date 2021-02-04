@@ -98,28 +98,34 @@ public class BotMessages {
      * Fills an embed with a numerated list of the attendable {@link DiscordEvent}s.
      *
      * @param embedCreateSpec embed to be modified
-     * @param discordEvents attendable events
+     * @param discordEvents   attendable events
      */
     public static void attachAttendableDiscordEvents(EmbedCreateSpec embedCreateSpec,
-                                                      List<DiscordEvent> discordEvents) {
+                                                     List<DiscordEvent> discordEvents) {
+        StringBuilder descriptionStringBuilder = new StringBuilder()
+            .append(BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
+            .append("\n\n");
+
+        AtomicInteger eventCounter = new AtomicInteger(0);
+        discordEvents.forEach(discordEvent ->
+            descriptionStringBuilder
+                .append("[")
+                .append(eventCounter.getAndIncrement())
+                .append("] ")
+                .append(String.format(
+                    "**%s**, %s\n",
+                    discordEvent.getName(),
+                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
+                ))
+        );
+
         embedCreateSpec
             .setTitle(String.format(
                 BotMessages.EMOJI_AND_TITLE_FORMAT_STR,
                 Emoji.RAISE_HAND,
                 BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_TITLE))
-            .setDescription(BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
+            .setDescription(descriptionStringBuilder.toString())
             .setColor(Color.LIGHT_SEA_GREEN);
-
-        AtomicInteger eventCounter = new AtomicInteger(1);
-        discordEvents.forEach(discordEvent ->
-            BotMessages.DiscordEventSummaryFieldBuilder.builder()
-                .discordEvent(discordEvent)
-                .embedCreateSpec(embedCreateSpec)
-                .count(eventCounter.getAndIncrement())
-                .build()
-                .withNumeratedSingleLiner()
-                .buildField()
-        );
     }
 
     /**
@@ -500,25 +506,6 @@ public class BotMessages {
          */
         public DiscordEventSummaryFieldBuilder withInline(Boolean val) {
             this.inline = val;
-            return this;
-        }
-
-        /**
-         * Sets a title, no description, and numeration . The title resumes everything.
-         *
-         * @return builder
-         */
-        public DiscordEventSummaryFieldBuilder withNumeratedSingleLiner() {
-            this.title = new StringBuilder()
-                .append("[")
-                .append(count)
-                .append("] ")
-                .append(String.format(
-                    "**%s**, %s",
-                    discordEvent.getName(),
-                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
-                ))
-                .toString();
             return this;
         }
 
