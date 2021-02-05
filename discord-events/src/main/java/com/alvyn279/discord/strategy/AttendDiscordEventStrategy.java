@@ -5,6 +5,7 @@ import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
+import com.alvyn279.discord.stateful.reaction.AttendMessageFactory;
 import com.alvyn279.discord.stateful.reaction.ReactableMessagePool;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -31,13 +32,18 @@ public class AttendDiscordEventStrategy {
 
     private final ReactableMessagePool reactableMessagePool;
 
+    private final AttendMessageFactory attendMessageFactory;
+
     private static final Integer REACTION_LIMIT = 10;
 
     @Inject
     public AttendDiscordEventStrategy(DiscordEventReactiveRepository discordEventReactiveRepository,
-                                      ReactableMessagePool reactableMessagePool) {
+                                      ReactableMessagePool reactableMessagePool,
+                                      AttendMessageFactory attendMessageFactory) {
         this.discordEventReactiveRepository = discordEventReactiveRepository;
         this.reactableMessagePool = reactableMessagePool;
+        this.attendMessageFactory = attendMessageFactory;
+
     }
 
     public Mono<Void> execute(DiscordCommandContext context) {
