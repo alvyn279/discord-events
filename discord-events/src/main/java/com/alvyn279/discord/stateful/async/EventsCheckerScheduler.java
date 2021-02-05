@@ -1,4 +1,4 @@
-package com.alvyn279.discord.async;
+package com.alvyn279.discord.stateful.async;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

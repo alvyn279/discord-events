@@ -1,7 +1,7 @@
 package com.alvyn279.discord.strategy;
 
-import com.alvyn279.discord.async.EventsCheckerTask;
-import com.alvyn279.discord.async.EventsCheckerScheduler;
+import com.alvyn279.discord.stateful.async.EventsCheckerTask;
+import com.alvyn279.discord.stateful.async.EventsCheckerScheduler;
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.google.inject.Inject;

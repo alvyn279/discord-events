@@ -1,4 +1,4 @@
-package com.alvyn279.discord.async;
+package com.alvyn279.discord.stateful.async;
 
 import com.alvyn279.discord.domain.BotMessages;
 import com.alvyn279.discord.domain.DiscordEvent;
