@@ -4,7 +4,7 @@ import com.alvyn279.discord.strategy.EventReminderServiceStrategy;
 import com.alvyn279.discord.strategy.StartEventReminderServiceStrategy;
 import com.alvyn279.discord.strategy.StopEventReminderServiceStrategy;
 import com.alvyn279.discord.domain.BotMessages;
-import com.alvyn279.discord.domain.CommandReaction;
+import com.alvyn279.discord.domain.CommandBehaviour;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.provider.RootModule;
 import com.alvyn279.discord.strategy.*;
@@ -45,7 +45,7 @@ public class DiscordEventsBot {
     private static final String DISCORD_EVENTS_COMMAND_REMIND = "remind-events";
     private static final String DISCORD_EVENTS_COMMAND_PING = "ping";
 
-    private static final Map<String, CommandReaction> commands;
+    private static final Map<String, CommandBehaviour> commands;
     private static final Injector injector;
 
     static {

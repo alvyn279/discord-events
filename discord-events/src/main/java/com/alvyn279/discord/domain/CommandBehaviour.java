@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
  * Interface containing the signature for operations to be performed
  * in response to incoming commands from the discord web socket.
  */
-public interface CommandReaction {
+public interface CommandBehaviour {
 
     /**
      * Executes a reaction to a given command
