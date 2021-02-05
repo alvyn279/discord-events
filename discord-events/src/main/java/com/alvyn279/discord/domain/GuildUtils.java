@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alvyn279.discord.utils.Constants.NUMBER_TO_RAW_EMOJI_STRING;
+import static com.alvyn279.discord.domain.Constants.NUMBER_TO_RAW_EMOJI_STRING;
 
 /**
  * Utility functions adding Discord context

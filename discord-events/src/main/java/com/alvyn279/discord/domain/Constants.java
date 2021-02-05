@@ -1,6 +1,5 @@
-package com.alvyn279.discord.utils;
+package com.alvyn279.discord.domain;
 
-import com.alvyn279.discord.domain.ChannelUser;
 import software.amazon.awssdk.utils.ImmutableMap;
 
 import java.util.Arrays;

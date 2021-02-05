@@ -8,7 +8,7 @@ import com.alvyn279.discord.domain.CommandReaction;
 import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.provider.RootModule;
 import com.alvyn279.discord.strategy.*;
-import com.alvyn279.discord.utils.Constants;
+import com.alvyn279.discord.domain.Constants;
 import com.alvyn279.discord.utils.EnvironmentUtils;
 import com.alvyn279.discord.utils.DiscordStringUtils;
 import com.google.inject.Guice;
