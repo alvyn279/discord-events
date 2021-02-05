@@ -17,7 +17,7 @@ public interface ReactableMessage {
     void onReactionAdd(ReactionAddEvent event);
 
     /**
-     * Behaviour on a removed reaction
+     * Behaviour on a removed reaction.
      *
      * @param event {@link ReactionRemoveEvent} object passed to the
      *              event dispatcher

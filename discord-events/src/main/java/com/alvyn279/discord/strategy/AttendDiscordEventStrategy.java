@@ -5,6 +5,7 @@ import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
+import com.alvyn279.discord.stateful.reaction.ReactableMessagePool;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
@@ -28,11 +29,15 @@ public class AttendDiscordEventStrategy {
 
     private final DiscordEventReactiveRepository discordEventReactiveRepository;
 
+    private final ReactableMessagePool reactableMessagePool;
+
     private static final Integer REACTION_LIMIT = 10;
 
     @Inject
-    public AttendDiscordEventStrategy(DiscordEventReactiveRepository discordEventReactiveRepository) {
+    public AttendDiscordEventStrategy(DiscordEventReactiveRepository discordEventReactiveRepository,
+                                      ReactableMessagePool reactableMessagePool) {
         this.discordEventReactiveRepository = discordEventReactiveRepository;
+        this.reactableMessagePool = reactableMessagePool;
     }
 
     public Mono<Void> execute(DiscordCommandContext context) {
@@ -60,7 +65,7 @@ public class AttendDiscordEventStrategy {
                             .collect(Collectors.toList())
                     );
 
-                    // TODO: store message id, discord events in that order in memory.
+                    // TODO: store message id, discord events in that order in {@link ReactableMessagePool}.
                     return addReactions
                         .collect(Collectors.toList())
                         .then();
