@@ -102,6 +102,11 @@ public class BotMessages {
      */
     public static void attachAttendableDiscordEvents(EmbedCreateSpec embedCreateSpec,
                                                      List<DiscordEvent> discordEvents) {
+        if (discordEvents.isEmpty()) {
+            attachNoDiscordEventsDescription(embedCreateSpec);
+            return;
+        }
+
         StringBuilder descriptionStringBuilder = new StringBuilder()
             .append(BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
             .append("\n\n");
