@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
 import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -29,14 +30,14 @@ public class AttendMessageFactory {
      * it will remove the need for the caller to know about the repository.
      *
      * @param guild         guild
-     * @param messageId     bot message id (reactable message)
+     * @param message       bot message id (reactable message)
      * @param discordEvents list of discord events the reactable Message displays
      * @return {@link AttendMessage}
      */
-    public AttendMessage createAttendMessage(Guild guild, String messageId, List<DiscordEvent> discordEvents) {
+    public AttendMessage createAttendMessage(Guild guild, Message message, List<DiscordEvent> discordEvents) {
         return AttendMessage.builder()
             .guild(guild)
-            .messageId(messageId)
+            .message(message)
             .discordEvents(discordEvents)
             .build();
     }
@@ -53,7 +54,7 @@ public class AttendMessageFactory {
         @NonNull
         private final List<DiscordEvent> discordEvents;
         @NonNull
-        private final String messageId;
+        private final Message message;
 
         @Override
         public void onReactionAdd(ReactionAddEvent event) {
