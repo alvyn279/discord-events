@@ -28,7 +28,8 @@ public class BotMessages {
 
     private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
     private static final String DISCORD_EVENTS_ATTEND_EVENTS_TITLE = "Attend Events";
-    private static final String DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION = "React to the events you wish to attend.";
+    private static final String DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION = "React to the events you wish to attend. " +
+        "Note that you can only call present on the next ten (10) events.";
     private static final String DISCORD_EVENTS_ATTENDEES_ENUMERATION_FORMAT_STR = "%s will be there.";
     private static final String DISCORD_EVENTS_ATTENDEES_NONE = "No one";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
@@ -55,6 +56,8 @@ public class BotMessages {
     private static final String EVENT_REMINDERS_TURNED_ON = "You will be reminded on this channel about any" +
         " event starting soon.";
     private static final String EVENT_REMINDERS_TURNED_ON_TITLE = "Event reminders: ON";
+    private static final String HELP_SECTION_ATTEND = "Attend events";
+    private static final String HELP_SECTION_ATTEND_INFO = "`!attend-events`";
     private static final String HELP_SECTION_CREATE = "Create event";
     private static final String HELP_SECTION_CREATE_INFO =
         "`!create-event [title:str] [date:date] [time:time] [description:str]?`";
@@ -90,10 +93,11 @@ public class BotMessages {
 
     static {
         HELP_SECTION_TUPLE_LIST = ImmutableList.<SectionTuple>of(
+            SectionTuple.builder().section(HELP_SECTION_ATTEND).sectionInfo(HELP_SECTION_ATTEND_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_CREATE).sectionInfo(HELP_SECTION_CREATE_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_DELETE).sectionInfo(HELP_SECTION_DELETE_INFO).build(),
-            SectionTuple.builder().section(HELP_SECTION_LIST).sectionInfo(HELP_SECTION_LIST_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_REMINDERS).sectionInfo(HELP_SECTION_REMINDERS_INFO).build(),
+            SectionTuple.builder().section(HELP_SECTION_LIST).sectionInfo(HELP_SECTION_LIST_INFO).build(),
             SectionTuple.builder().section(HELP_SECTION_FORMATS).sectionInfo(HELP_SECTION_FORMATS_INFO).build()
         );
     }

@@ -48,7 +48,7 @@ public class DiscordEventsBot {
 
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
-    private static final String DISCORD_EVENTS_COMMAND_ATTEND_EVENT = "attend-event";
+    private static final String DISCORD_EVENTS_COMMAND_ATTEND_EVENT = "attend-events";
     private static final String DISCORD_EVENTS_COMMAND_CREATE_EVENT = "create-event";
     private static final String DISCORD_EVENTS_COMMAND_DELETE_EVENT = "delete-events";
     private static final String DISCORD_EVENTS_COMMAND_HELP = "help-events";
