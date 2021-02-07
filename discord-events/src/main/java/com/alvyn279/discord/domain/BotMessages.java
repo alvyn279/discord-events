@@ -543,12 +543,10 @@ public class BotMessages {
          * @return builder
          */
         public DiscordEventSummaryFieldBuilder withEntityAttendeesDescription(String attendeesList) {
-            this.description = new StringBuilder()
-                .append(String.format(
-                    DISCORD_EVENTS_ATTENDEES_ENUMERATION_FORMAT_STR,
-                    attendeesList
-                ))
-                .toString();
+            this.description = String.format(
+                DISCORD_EVENTS_ATTENDEES_ENUMERATION_FORMAT_STR,
+                attendeesList
+            );
             return this;
         }
 

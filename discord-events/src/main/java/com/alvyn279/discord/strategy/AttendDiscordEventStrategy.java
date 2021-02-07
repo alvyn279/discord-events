@@ -71,11 +71,17 @@ public class AttendDiscordEventStrategy {
                             )))
                             .collect(Collectors.toList())
                     );
-
-                    // TODO: store message id, discord events in that order in {@link ReactableMessagePool}.
                     return addReactions
                         .collect(Collectors.toList())
-                        .then();
+                        .then(Mono.just(attendMessage));
+                })
+                .flatMap(message -> {
+                    reactableMessagePool.putReactableMessage(
+                        guild,
+                        message.getId().asString(),
+                        attendMessageFactory.createAttendMessage(guild, message, discordEvents)
+                    );
+                    return Mono.empty();
                 })
             ).then();
     }

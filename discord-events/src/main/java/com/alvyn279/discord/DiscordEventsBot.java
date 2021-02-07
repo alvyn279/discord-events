@@ -1,5 +1,7 @@
 package com.alvyn279.discord;
 
+import com.alvyn279.discord.stateful.reaction.ReactableMessage;
+import com.alvyn279.discord.stateful.reaction.ReactableMessagePool;
 import com.alvyn279.discord.strategy.EventReminderServiceStrategy;
 import com.alvyn279.discord.strategy.StartEventReminderServiceStrategy;
 import com.alvyn279.discord.strategy.StopEventReminderServiceStrategy;
@@ -16,6 +18,7 @@ import com.google.inject.Injector;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.ReactionAddEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -25,6 +28,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A Discord Bot implementation that schedules events.
@@ -34,6 +38,7 @@ import java.util.Map;
 @Slf4j
 public class DiscordEventsBot {
 
+    private static final Integer MAX_TOLERATED_RETRIES = 1;
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_ATTEND_EVENT = "attend-event";
@@ -47,13 +52,14 @@ public class DiscordEventsBot {
 
     private static final Map<String, CommandBehaviour> commands;
     private static final Injector injector;
+    private static final ReactableMessagePool messagePool;
 
     static {
         // Instantiate resource and handler providers
         injector = Guice.createInjector(new RootModule());
         commands = new HashMap<>();
 
-        // Instantiate strategies
+        // Instantiate custom strategies
         final CreateDiscordEventStrategy createDiscordEventStrategy = injector.getInstance(
             CreateFullDiscordEventStrategy.class);
         final ListDiscordEventsForCurrentUserStrategy listPersonalDiscordEventsStrategy = injector.getInstance(
@@ -195,6 +201,9 @@ public class DiscordEventsBot {
                     );
                 })
             ));
+
+        // Instantiate message pool reference
+        messagePool = injector.getInstance(ReactableMessagePool.class);
     }
 
     public static void main(String[] args) {
@@ -217,7 +226,7 @@ public class DiscordEventsBot {
                         // reactor.netty.http.client.PrematureCloseException is thrown.
                         // This should still be fine for any DDB operations
                         // if consistency checks are made at write-time.
-                        .retry(1)
+                        .retry(MAX_TOLERATED_RETRIES)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
                             return messageCreateEvent.getMessage().getChannel()
@@ -225,6 +234,23 @@ public class DiscordEventsBot {
                                 .then();
                         }))
                     .next()))
+            .subscribe();
+
+        // Create listeners for adding emoji reaction on messages
+        client.getEventDispatcher().on(ReactionAddEvent.class)
+            .flatMap(event -> event.getGuild()
+                .flatMap(guild -> {
+                    Optional<ReactableMessage> optMessage = messagePool.getReactableMessage(
+                        guild,
+                        event.getMessageId().asString()
+                    );
+
+                    return optMessage
+                        .map(reactableMessage -> reactableMessage.onReactionAdd(event))
+                        .orElse(Mono.empty());
+                })
+            )
+            .retry(MAX_TOLERATED_RETRIES)
             .subscribe();
 
         client.onDisconnect().block();
