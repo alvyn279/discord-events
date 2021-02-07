@@ -14,10 +14,22 @@ public class DiscordStringUtils {
 
     public static final String EMPTY = "";
 
+    private static final String DISCORD_BOLD_MD_FORMAT_STR = "**%s**";
     private static final String TOKENIZER_GROUP_DELIMITER_REGEX = "\"([^\"]*)\"|'([^']*)'|(\\S+)";
 
     private static boolean isEmbeddedString(String s) {
         return (s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"));
+    }
+
+    /**
+     * Returns a markdown-friendly string that will be bolded
+     * when reaching Discord.
+     *
+     * @param s string to be bolded
+     * @return raw bolded markdown string
+     */
+    public static String boldify(String s) {
+        return String.format(DISCORD_BOLD_MD_FORMAT_STR, s);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.alvyn279.discord.domain;
 
 import com.alvyn279.discord.utils.DateUtils;
+import com.alvyn279.discord.utils.DiscordStringUtils;
 import com.google.common.collect.ImmutableList;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -128,8 +129,9 @@ public class BotMessages {
                     attendeesList = StringUtils.join(
                         discordEvent.getAttendees().stream()
                             .map(s -> usersMap.containsKey(s) ? usersMap.get(s).getUsername() : UNKNOWN_USER)
+                            .map(DiscordStringUtils::boldify)
                             .toArray(String[]::new),
-                        ",");
+                        ", ");
                 }
 
                 BotMessages.DiscordEventSummaryFieldBuilder.builder()
