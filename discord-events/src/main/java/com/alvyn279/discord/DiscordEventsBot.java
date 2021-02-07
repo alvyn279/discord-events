@@ -19,6 +19,7 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.ReactionAddEvent;
+import discord4j.core.event.domain.message.ReactionRemoveEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -249,6 +250,23 @@ public class DiscordEventsBot {
 
                     return optMessage
                         .map(reactableMessage -> reactableMessage.onReactionAdd(event))
+                        .orElse(Mono.empty());
+                })
+            )
+            .retry(MAX_TOLERATED_RETRIES)
+            .subscribe();
+
+        // Create listeners for removing emoji reaction on messages
+        client.getEventDispatcher().on(ReactionRemoveEvent.class)
+            .flatMap(event -> event.getGuild()
+                .flatMap(guild -> {
+                    Optional<ReactableMessage> optMessage = messagePool.getReactableMessage(
+                        guild,
+                        event.getMessageId().asString()
+                    );
+
+                    return optMessage
+                        .map(reactableMessage -> reactableMessage.onReactionRemove(event))
                         .orElse(Mono.empty());
                 })
             )

@@ -18,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Object for messages sent by the bot in response
@@ -58,6 +59,27 @@ public class AttendMessage extends BaseMessage implements ReactableMessage {
         return updatedEvents;
     }
 
+    /**
+     * Common extract that edits the original message with newly
+     * updated discord events.
+     *
+     * @param modifiedDiscordEvent updated discord event
+     * @param index                index at which the discord event is located in original list
+     * @return Mono<Message>
+     */
+    private Mono<Message> updateAttendMessage(DiscordEvent modifiedDiscordEvent, Integer index) {
+        return GuildUtils.retrieveGuildUsers(guild)
+            .flatMap(stringUserMap -> message.edit(
+                messageEditSpec -> messageEditSpec.setEmbed(
+                    embedCreateSpec ->
+                        BotMessages.attachAttendableDiscordEvents(
+                            embedCreateSpec,
+                            popAndReplaceAtIndex(modifiedDiscordEvent, index),
+                            stringUserMap
+                        )
+                )));
+    }
+
     @Override
     public Mono<Void> onReactionAdd(ReactionAddEvent event) {
         String attendeeId = event.getUserId().asString();
@@ -70,16 +92,7 @@ public class AttendMessage extends BaseMessage implements ReactableMessage {
                         .add(attendeeId)
                         .build())
                     .build())
-                    .flatMap(discordEvent -> GuildUtils.retrieveGuildUsers(guild)
-                        .flatMap(stringUserMap -> message.edit(
-                            messageEditSpec -> messageEditSpec.setEmbed(
-                                embedCreateSpec ->
-                                    BotMessages.attachAttendableDiscordEvents(
-                                        embedCreateSpec,
-                                        popAndReplaceAtIndex(discordEvent, index),
-                                        stringUserMap
-                                    )
-                            )))))
+                    .flatMap(modifiedDiscordEvent -> updateAttendMessage(modifiedDiscordEvent, index)))
                 .orElse(Mono.empty())
             )
             .orElse(Mono.empty())
@@ -88,7 +101,22 @@ public class AttendMessage extends BaseMessage implements ReactableMessage {
 
     @Override
     public Mono<Void> onReactionRemove(ReactionRemoveEvent event) {
-        // TODO: use repository to remove reactions
-        return Mono.empty();
+        String dipperId = event.getUserId().asString();
+        return retrieveRawUnicode(event.getEmoji())
+            .map(rawReactionEmojiStr -> GuildUtils.getNumberedEmojiIndex(rawReactionEmojiStr)
+                .map(index -> repository.saveDiscordEvent(DiscordEventDTO
+                    .copyOfBuilder(discordEvents.get(index))
+                    .attendees(ImmutableSet.<String>builder()
+                        .addAll(discordEvents.get(index).getAttendees().stream()
+                            .filter(s -> !s.equals(dipperId))
+                            .collect(Collectors.toSet())
+                        )
+                        .build())
+                    .build())
+                    .flatMap(modifiedDiscordEvent -> updateAttendMessage(modifiedDiscordEvent, index)))
+                .orElse(Mono.empty())
+            )
+            .orElse(Mono.empty())
+            .then();
     }
 }
