@@ -63,7 +63,8 @@ public interface DiscordEventReactiveRepository {
     Mono<List<DiscordEvent>> listDiscordEventCreatedByUser(ListDiscordEventsCommandDTO args);
 
     /**
-     * Saves a {@link DiscordEvent} to a datastore in a reactive manner.
+     * Saves a {@link DiscordEvent} to a datastore in a reactive manner. This should have
+     * create and update behaviour (PUT).
      *
      * @param discordEventDTO DiscordEvent data transfer object that has nullable
      *                        `description` and `attendees` fields.

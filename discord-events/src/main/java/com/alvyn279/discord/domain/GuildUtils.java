@@ -9,8 +9,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.alvyn279.discord.domain.Constants.NUMBER_TO_RAW_EMOJI_STRING;
+import static com.alvyn279.discord.domain.Constants.RAW_EMOJI_STRING_TO_NUMBER;
 
 /**
  * Utility functions adding Discord context
@@ -23,18 +25,31 @@ public class GuildUtils {
      * @param number number
      * @return raw string
      */
-    public static String getRawNumberReactionEmoji(Integer number) {
+    public static String getRawReactionEmojiFromNumber(Integer number) {
         if (number < 0 || number > 9 || !NUMBER_TO_RAW_EMOJI_STRING.containsKey(number)) {
             throw new RuntimeException("Discord does not have emojis outside the 0-9 inclusive range.");
         }
-
         return NUMBER_TO_RAW_EMOJI_STRING.get(number);
+    }
+
+    /**
+     * Obtains the index represented by the numbered emoji
+     * unicode passed as param.
+     *
+     * @param raw emoji unicode raw string
+     * @return index it represents
+     */
+    public static Optional<Integer> getOptionalNumberedEmojiIndex(String raw) {
+        if (!RAW_EMOJI_STRING_TO_NUMBER.containsKey(raw)) {
+            return Optional.empty();
+        }
+        return Optional.of(RAW_EMOJI_STRING_TO_NUMBER.get(raw));
     }
 
     /**
      * Retrieves all the guild {@link User}s through the
      * Discord REST API (not the gateway).
-     *
+     * <p>
      * Temporary: this REST API operation takes a significant amount of
      * time. We should probably cache the result.
      *

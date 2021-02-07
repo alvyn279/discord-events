@@ -2,6 +2,7 @@ package com.alvyn279.discord.stateful.reaction;
 
 import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
+import reactor.core.publisher.Mono;
 
 /**
  * Interface for messages that have behaviour when
@@ -14,7 +15,7 @@ public interface ReactableMessage {
      * @param event {@link ReactionAddEvent} object passed to the
      *              event dispatcher
      */
-    void onReactionAdd(ReactionAddEvent event);
+    Mono<Void> onReactionAdd(ReactionAddEvent event);
 
     /**
      * Behaviour on a removed reaction.
@@ -22,5 +23,5 @@ public interface ReactableMessage {
      * @param event {@link ReactionRemoveEvent} object passed to the
      *              event dispatcher
      */
-    void onReactionRemove(ReactionRemoveEvent event);
+    Mono<Void> onReactionRemove(ReactionRemoveEvent event);
 }

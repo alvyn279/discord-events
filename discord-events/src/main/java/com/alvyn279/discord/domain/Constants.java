@@ -1,5 +1,6 @@
 package com.alvyn279.discord.domain;
 
+import com.google.common.collect.HashBiMap;
 import software.amazon.awssdk.utils.ImmutableMap;
 
 import java.util.Arrays;
@@ -28,4 +29,8 @@ public class Constants {
         .put(8, "\u0038\u20E3")
         .put(9, "\u0039\u20E3")
         .build();
+
+    public static final Map<String, Integer> RAW_EMOJI_STRING_TO_NUMBER = HashBiMap
+        .create(NUMBER_TO_RAW_EMOJI_STRING)
+        .inverse();
 }

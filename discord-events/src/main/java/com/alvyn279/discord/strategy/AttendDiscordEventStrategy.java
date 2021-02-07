@@ -5,7 +5,7 @@ import com.alvyn279.discord.domain.DiscordCommandContext;
 import com.alvyn279.discord.domain.GuildUtils;
 import com.alvyn279.discord.repository.DiscordEventReactiveRepository;
 import com.alvyn279.discord.repository.dto.ListDiscordEventsCommandDTO;
-import com.alvyn279.discord.stateful.reaction.AttendMessageFactory;
+import com.alvyn279.discord.stateful.reaction.ReactableMessageFactory;
 import com.alvyn279.discord.stateful.reaction.ReactableMessagePool;
 import com.google.inject.Inject;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -32,14 +32,14 @@ public class AttendDiscordEventStrategy {
 
     private final ReactableMessagePool reactableMessagePool;
 
-    private final AttendMessageFactory attendMessageFactory;
+    private final ReactableMessageFactory attendMessageFactory;
 
     private static final Integer REACTION_LIMIT = 10;
 
     @Inject
     public AttendDiscordEventStrategy(DiscordEventReactiveRepository discordEventReactiveRepository,
                                       ReactableMessagePool reactableMessagePool,
-                                      AttendMessageFactory attendMessageFactory) {
+                                      ReactableMessageFactory attendMessageFactory) {
         this.discordEventReactiveRepository = discordEventReactiveRepository;
         this.reactableMessagePool = reactableMessagePool;
         this.attendMessageFactory = attendMessageFactory;
@@ -58,15 +58,16 @@ public class AttendDiscordEventStrategy {
 
         return discordEventReactiveRepository.listDiscordEventsByUpcomingWithLimit(dto)
             .flatMap(discordEvents -> msg.getChannel()
-                .flatMap(messageChannel -> messageChannel.createEmbed(embedCreateSpec ->
-                    BotMessages.attachAttendableDiscordEvents(embedCreateSpec, discordEvents)
-                ))
+                .flatMap(messageChannel -> GuildUtils.retrieveGuildUsers(guild)
+                    .flatMap(stringUserMap -> messageChannel.createEmbed(embedCreateSpec ->
+                        BotMessages.attachAttendableDiscordEvents(embedCreateSpec, discordEvents, stringUserMap)
+                    )))
                 .flatMap(attendMessage -> {
                     AtomicInteger eventCounter = new AtomicInteger(0);
                     final Flux<Void> addReactions = Flux.concat(
                         discordEvents.stream()
                             .map(discordEvent -> attendMessage.addReaction(ReactionEmoji.unicode(
-                                GuildUtils.getRawNumberReactionEmoji(eventCounter.getAndIncrement())
+                                GuildUtils.getRawReactionEmojiFromNumber(eventCounter.getAndIncrement())
                             )))
                             .collect(Collectors.toList())
                     );

@@ -8,6 +8,7 @@ import discord4j.rest.util.Color;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +28,8 @@ public class BotMessages {
     private static final String DISCORD_EVENT_DESCRIPTION_HEADLINE_FORMAT_STR = "**%s**, by %s\n";
     private static final String DISCORD_EVENTS_ATTEND_EVENTS_TITLE = "Attend Events";
     private static final String DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION = "React to the events you wish to attend.";
+    private static final String DISCORD_EVENTS_ATTENDEES_ENUMERATION_FORMAT_STR = "%s will be there.";
+    private static final String DISCORD_EVENTS_ATTENDEES_NONE = "No one";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_TITLE = "Cannot Delete Event";
     private static final String DISCORD_EVENTS_DELETE_ACCESS_DENIED_DESCRIPTION_FORMAT_STR =
         "You cannot delete \"%s\" because you are not the one that created it.";
@@ -44,7 +47,7 @@ public class BotMessages {
     private static final String EVENT_REMINDERS_ON = "Event reminders are on.";
     private static final String EVENT_REMINDERS_OFF = "Event reminders are off.";
     private static final String EVENT_REMINDERS_STATUS = "Event Reminders Status";
-    private static final String EVENT_REMINDERS_STATUS_DESCRIPTION_STR_FORMAT = "Event reminders are currently " +
+    private static final String EVENT_REMINDERS_STATUS_DESCRIPTION_FORMAT_STR = "Event reminders are currently " +
         "turned on in text channel: #**%s**.";
     private static final String EVENT_REMINDERS_TURNED_OFF = "You will not be reminded of upcoming events anymore.";
     private static final String EVENT_REMINDERS_TURNED_OFF_TITLE = "Event reminders: OFF";
@@ -101,36 +104,44 @@ public class BotMessages {
      * @param discordEvents   attendable events
      */
     public static void attachAttendableDiscordEvents(EmbedCreateSpec embedCreateSpec,
-                                                     List<DiscordEvent> discordEvents) {
+                                                     List<DiscordEvent> discordEvents,
+                                                     Map<String, User> usersMap) {
         if (discordEvents.isEmpty()) {
             attachNoDiscordEventsDescription(embedCreateSpec);
             return;
         }
 
-        StringBuilder descriptionStringBuilder = new StringBuilder()
-            .append(BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
-            .append("\n\n");
-
-        AtomicInteger eventCounter = new AtomicInteger(0);
-        discordEvents.forEach(discordEvent ->
-            descriptionStringBuilder
-                .append("[")
-                .append(eventCounter.getAndIncrement())
-                .append("] ")
-                .append(String.format(
-                    "**%s**, %s\n",
-                    discordEvent.getName(),
-                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
-                ))
-        );
-
         embedCreateSpec
             .setTitle(String.format(
-                BotMessages.EMOJI_AND_TITLE_FORMAT_STR,
+                EMOJI_AND_TITLE_FORMAT_STR,
                 Emoji.RAISE_HAND,
-                BotMessages.DISCORD_EVENTS_ATTEND_EVENTS_TITLE))
-            .setDescription(descriptionStringBuilder.toString())
+                DISCORD_EVENTS_ATTEND_EVENTS_TITLE))
+            .setDescription(DISCORD_EVENTS_ATTEND_EVENTS_DESCRIPTION)
             .setColor(Color.LIGHT_SEA_GREEN);
+
+        AtomicInteger eventCounter = new AtomicInteger(0);
+        discordEvents.forEach(discordEvent -> {
+                String attendeesList;
+                if (discordEvent.getAttendees().isEmpty()) {
+                    attendeesList = DISCORD_EVENTS_ATTENDEES_NONE;
+                } else {
+                    attendeesList = StringUtils.join(
+                        discordEvent.getAttendees().stream()
+                            .map(s -> usersMap.containsKey(s) ? usersMap.get(s).getUsername() : UNKNOWN_USER)
+                            .toArray(String[]::new),
+                        ",");
+                }
+
+                BotMessages.DiscordEventSummaryFieldBuilder.builder()
+                    .discordEvent(discordEvent)
+                    .embedCreateSpec(embedCreateSpec)
+                    .count(eventCounter.getAndIncrement())
+                    .build()
+                    .withNumeratedTitleAndEventName()
+                    .withEntityAttendeesDescription(attendeesList)
+                    .buildField();
+            }
+        );
     }
 
     /**
@@ -319,7 +330,7 @@ public class BotMessages {
         BotMessages.eventRemindersOn(embedCreateSpec);
         embedCreateSpec
             .setDescription(String.format(
-                EVENT_REMINDERS_STATUS_DESCRIPTION_STR_FORMAT,
+                EVENT_REMINDERS_STATUS_DESCRIPTION_FORMAT_STR,
                 channelName
             ));
     }
@@ -452,6 +463,26 @@ public class BotMessages {
         }
 
         /**
+         * Sets the title to have a number, the name of the event, and the
+         * time at which it will occur.
+         *
+         * @return builder
+         */
+        public DiscordEventSummaryFieldBuilder withNumeratedTitleAndEventName() {
+            this.title = new StringBuilder()
+                .append("[")
+                .append(count)
+                .append("] ")
+                .append(String.format(
+                    "**%s**, %s\n",
+                    discordEvent.getName(),
+                    DateUtils.prettyPrintInstantInLocalTimezone(discordEvent.getTimestamp())
+                ))
+                .toString();
+            return this;
+        }
+
+        /**
          * Sets a description headline with the name of the event
          *
          * @return builder
@@ -499,6 +530,24 @@ public class BotMessages {
         public DiscordEventSummaryFieldBuilder withEntityAndDeleteCodeDescription() {
             this.description = commonDescription()
                 .append(String.format("[*deleteCode*: %s]\n", discordEvent.getMessageId()))
+                .toString();
+            return this;
+        }
+
+        /**
+         * Sets the field description to be a single-liner with
+         * the list of comma-separated values of all attendees
+         * to the event.
+         *
+         * @param attendeesList String: comma-separated usernames
+         * @return builder
+         */
+        public DiscordEventSummaryFieldBuilder withEntityAttendeesDescription(String attendeesList) {
+            this.description = new StringBuilder()
+                .append(String.format(
+                    DISCORD_EVENTS_ATTENDEES_ENUMERATION_FORMAT_STR,
+                    attendeesList
+                ))
                 .toString();
             return this;
         }
