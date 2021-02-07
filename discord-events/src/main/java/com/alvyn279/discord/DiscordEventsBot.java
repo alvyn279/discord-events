@@ -38,7 +38,13 @@ import java.util.Optional;
 @Slf4j
 public class DiscordEventsBot {
 
+    // We retry in the case of a cold request where
+    // reactor.netty.http.client.PrematureCloseException
+    // is thrown. This should still be fine for any DDB
+    // operations if consistency checks are made at write
+    // time.
     private static final Integer MAX_TOLERATED_RETRIES = 1;
+
     private static final String DISCORD_BOT_TOKEN_KEY = "DISCORD_BOT_TOKEN";
     private static final String DISCORD_COMMAND_PREFIX = "!";
     private static final String DISCORD_EVENTS_COMMAND_ATTEND_EVENT = "attend-event";
@@ -222,10 +228,6 @@ public class DiscordEventsBot {
                         "%1$s%2$s", DISCORD_COMMAND_PREFIX, entry.getKey())))
                     .flatMap(entry -> entry.getValue()
                         .execute(messageCreateEvent)
-                        // We retry in the case of a cold request where
-                        // reactor.netty.http.client.PrematureCloseException is thrown.
-                        // This should still be fine for any DDB operations
-                        // if consistency checks are made at write-time.
                         .retry(MAX_TOLERATED_RETRIES)
                         .onErrorResume(throwable -> {
                             log.error("Error with discord-events", throwable);
