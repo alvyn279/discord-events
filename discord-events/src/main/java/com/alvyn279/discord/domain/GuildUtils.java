@@ -39,7 +39,7 @@ public class GuildUtils {
      * @param raw emoji unicode raw string
      * @return index it represents
      */
-    public static Optional<Integer> getOptionalNumberedEmojiIndex(String raw) {
+    public static Optional<Integer> getNumberedEmojiIndex(String raw) {
         if (!RAW_EMOJI_STRING_TO_NUMBER.containsKey(raw)) {
             return Optional.empty();
         }

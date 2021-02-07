@@ -18,8 +18,6 @@ import lombok.experimental.SuperBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Object for messages sent by the bot in response
@@ -63,36 +61,28 @@ public class AttendMessage extends BaseMessage implements ReactableMessage {
     @Override
     public Mono<Void> onReactionAdd(ReactionAddEvent event) {
         String attendeeId = event.getUserId().asString();
-        Optional<String> rawReactionEmoji = retrieveRawUnicode(event.getEmoji());
-        if (rawReactionEmoji.isEmpty()) {
-            return Mono.empty();
-        }
-        Optional<Integer> index = GuildUtils.getOptionalNumberedEmojiIndex(rawReactionEmoji.get());
-        if (index.isEmpty()) {
-            return Mono.empty();
-        }
-
-        DiscordEvent chosen = discordEvents.get(index.get());
-        Set<String> newAttendees = ImmutableSet.<String>builder()
-            .addAll(chosen.getAttendees())
-            .add(attendeeId)
-            .build();
-
-        return repository
-            .saveDiscordEvent(DiscordEventDTO
-                .copyOfBuilder(chosen)
-                .attendees(newAttendees)
-                .build())
-            .flatMap(discordEvent -> GuildUtils.retrieveGuildUsers(guild)
-                .flatMap(stringUserMap -> message.edit(
-                    messageEditSpec -> messageEditSpec.setEmbed(
-                        embedCreateSpec ->
-                            BotMessages.attachAttendableDiscordEvents(
-                                embedCreateSpec,
-                                popAndReplaceAtIndex(discordEvent, index.get()),
-                                stringUserMap
-                            )
-                    ))))
+        return retrieveRawUnicode(event.getEmoji())
+            .map(rawReactionEmojiStr -> GuildUtils.getNumberedEmojiIndex(rawReactionEmojiStr)
+                .map(index -> repository.saveDiscordEvent(DiscordEventDTO
+                    .copyOfBuilder(discordEvents.get(index))
+                    .attendees(ImmutableSet.<String>builder()
+                        .addAll(discordEvents.get(index).getAttendees())
+                        .add(attendeeId)
+                        .build())
+                    .build())
+                    .flatMap(discordEvent -> GuildUtils.retrieveGuildUsers(guild)
+                        .flatMap(stringUserMap -> message.edit(
+                            messageEditSpec -> messageEditSpec.setEmbed(
+                                embedCreateSpec ->
+                                    BotMessages.attachAttendableDiscordEvents(
+                                        embedCreateSpec,
+                                        popAndReplaceAtIndex(discordEvent, index),
+                                        stringUserMap
+                                    )
+                            )))))
+                .orElse(Mono.empty())
+            )
+            .orElse(Mono.empty())
             .then();
     }
 
