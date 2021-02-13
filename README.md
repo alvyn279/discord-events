@@ -16,7 +16,9 @@ Java bot runs in a ECS-managed Docker image on an EC2 instance. It uses VPC endp
 Powered by [Discord4J](https://github.com/Discord4J/Discord4J).
 
 ### Main features
-Manage events (create, view, & delete) for multiple discord servers.
+- Manage events (create, view, & delete) for multiple discord servers.
+
+- Attend events using Discord emoji reactions.
 
 ### Reminder feature
 Opt-in feature where a separate thread in the bot checks for events and notifies a channel 15 minutes before it occurs.
@@ -86,8 +88,8 @@ You can always have your CI/CD pipeline deploy the newest version of your bot, j
 | `!my-events` | <img src="https://i.imgur.com/UYlbMV8.png" width=450 />  |
 | `!list-events [[upcoming:num]] [[on:date]] [[from:date] [to:date]]`  | <img src="https://i.imgur.com/b09TUPR.png" width=450 /> |
 | `!remind-events [on/off:str]?`  | <img src="https://i.imgur.com/G7eTOVh.png" width=450 />  |
+| `!attend-events`  | <img src="https://i.imgur.com/KnyXwTK.gif" width=450 />  |
 | `!help-events`  | <img src="https://i.imgur.com/VXYxM0w.png" width=450 />  |
-
 
 ## 📖 Resources
 * [How to Make a Discord Bot: an Overview and Tutorial](https://www.toptal.com/chatbot/how-to-make-a-discord-bot)
